@@ -433,6 +433,16 @@ this repo.
 3. Restart IMVU.
 4. Send or receive a message with emoji in chat and confirm images render.
 
+### Final fix: what it should look like
+
+After `patch_imvu_emoji.py` is applied and IMVU is restarted, chat emoji should
+render as Twemoji images instead of hex tofu boxes. Example from a working setup:
+
+![IMVU chat with emoji rendering correctly after the emoji fix](docs/emoji-fix-after.png)
+
+You should see color emoji inline in whispers/history (faces, symbols, flags,
+etc.) at a readable size next to normal linkified text.
+
 ### Restore
 
 ```powershell
