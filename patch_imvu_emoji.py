@@ -9,13 +9,23 @@ import time
 import zipfile
 
 
+def repo_root():
+    if getattr(sys, "frozen", False):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def asset_path(*parts):
+    return os.path.join(repo_root(), *parts)
+
+
 DEFAULT_IMVU_DIR = os.path.join(os.environ.get("APPDATA", ""), "IMVUClient")
-COMMON_SOURCE = os.path.join("library_decompiled_structured", "im", "common.py")
-EMOJI_CACHE_SOURCE = os.path.join("emoji_assets", "js", "emojiCache.js")
-EMOJI_JS_SOURCE = os.path.join("emoji_assets", "js", "emojiDisplay.js")
-EMOJI_LIST_SOURCE = os.path.join("emoji_assets", "js", "emojiList.js")
-EMOJI_PICKER_SOURCE = os.path.join("emoji_assets", "js", "emojiPicker.js")
-EMOJI_SUGGESTIONS_SOURCE = os.path.join("emoji_assets", "js", "emojiSuggestions.js")
+COMMON_SOURCE = asset_path("library_decompiled_structured", "im", "common.py")
+EMOJI_CACHE_SOURCE = asset_path("emoji_assets", "js", "emojiCache.js")
+EMOJI_JS_SOURCE = asset_path("emoji_assets", "js", "emojiDisplay.js")
+EMOJI_LIST_SOURCE = asset_path("emoji_assets", "js", "emojiList.js")
+EMOJI_PICKER_SOURCE = asset_path("emoji_assets", "js", "emojiPicker.js")
+EMOJI_SUGGESTIONS_SOURCE = asset_path("emoji_assets", "js", "emojiSuggestions.js")
 ZIP_COMMON_SOURCE = "im/common.py"
 ZIP_COMMON_BYTECODE = "im/common.pyo"
 PATCH_MARKER = "# IMVU emoji/unicode patch"
@@ -417,7 +427,12 @@ def parse_args():
     parser.add_argument("--library", help="Path to library.zip (overrides --imvu-dir).")
     parser.add_argument("--content-jar", help="Path to imvuContent.jar (overrides --imvu-dir).")
     parser.add_argument("--restore", action="store_true")
-    parser.add_argument("--force", action="store_true")
+    parser.add_argument("--force", action="store_true", help="Patch even if IMVU appears to be running.")
+    parser.add_argument(
+        "--no-close-imvu",
+        action="store_true",
+        help="Do not automatically close IMVU before patching.",
+    )
     return parser.parse_args()
 
 
@@ -433,26 +448,79 @@ def content_jar_path(args):
     return os.path.join(args.imvu_dir, "ui", "chrome", "imvuContent.jar")
 
 
-def imvu_is_running(imvu_dir):
+def imvu_client_processes(imvu_dir):
     imvu_dir = os.path.abspath(imvu_dir).lower()
+    processes = []
     try:
         output = subprocess.check_output(
             [
                 "powershell",
                 "-NoProfile",
                 "-Command",
-                "Get-Process IMVUClient -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path",
+                "Get-Process IMVUClient -ErrorAction SilentlyContinue | "
+                "ForEach-Object { $_.Id.ToString() + '|' + $_.Path }",
             ],
             stderr=subprocess.DEVNULL,
             text=True,
         )
     except Exception:
-        return False
+        return processes
     for line in output.splitlines():
-        path = line.strip()
+        line = line.strip()
+        if not line or "|" not in line:
+            continue
+        pid_text, path = line.split("|", 1)
+        path = path.strip()
         if path and os.path.dirname(path).lower() == imvu_dir:
-            return True
-    return False
+            try:
+                processes.append((int(pid_text), path))
+            except ValueError:
+                continue
+    return processes
+
+
+def imvu_is_running(imvu_dir):
+    return bool(imvu_client_processes(imvu_dir))
+
+
+def close_imvu(imvu_dir, timeout=20):
+    processes = imvu_client_processes(imvu_dir)
+    if not processes:
+        return True, None
+
+    for pid, path in processes:
+        print("Closing IMVUClient (PID %d)..." % pid)
+        subprocess.run(
+            ["taskkill", "/PID", str(pid), "/F"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if not imvu_is_running(imvu_dir):
+            return True, None
+        time.sleep(0.5)
+
+    return False, "IMVUClient is still running. Close it manually and try again."
+
+
+def ensure_imvu_closed(imvu_dir, force, no_close_imvu):
+    if not imvu_is_running(imvu_dir):
+        return True, None
+
+    if force:
+        return True, None
+
+    if no_close_imvu:
+        return False, "IMVUClient is running. Close IMVU or rerun without --no-close-imvu."
+
+    print("IMVU is running. Closing it automatically...")
+    ok, err = close_imvu(imvu_dir)
+    if ok:
+        print("IMVU closed.")
+        return True, None
+    return False, err
 
 
 def newest_backup(target, prefix):
@@ -668,10 +736,15 @@ def main():
     jar_path = content_jar_path(args)
     imvu_dir = os.path.dirname(library)
 
-    for path in (EMOJI_JS_SOURCE, EMOJI_LIST_SOURCE, EMOJI_PICKER_SOURCE):
+    for path in JAR_JS_ENTRIES.values():
+        if path == COMMON_SOURCE:
+            continue
         if not os.path.exists(path):
             print("Missing %s" % path, file=sys.stderr)
             return 1
+    if not os.path.exists(COMMON_SOURCE):
+        print("Missing %s" % COMMON_SOURCE, file=sys.stderr)
+        return 1
 
     if not os.path.exists(library):
         print("Missing library.zip: %s" % library, file=sys.stderr)
@@ -680,8 +753,9 @@ def main():
         print("Missing imvuContent.jar: %s" % jar_path, file=sys.stderr)
         return 1
 
-    if imvu_is_running(imvu_dir) and not args.force:
-        print("IMVUClient is running. Close IMVU completely, then rerun this script.", file=sys.stderr)
+    ok, err = ensure_imvu_closed(imvu_dir, args.force, args.no_close_imvu)
+    if not ok:
+        print(err, file=sys.stderr)
         return 2
 
     if args.restore:

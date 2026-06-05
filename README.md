@@ -12,8 +12,26 @@ IMVU Classic cannot render modern Unicode emoji natively. Missing glyphs show up
 
 ### Quick start
 
+**Option A — Installer (no Python needed)**
+
+1. Download or build `IMVU-Emoji-Installer.exe` from [Releases](https://github.com/JSukar/IMVU-TOOLKIT/releases) (or build locally — see below).
+2. Double-click **IMVU-Emoji-Installer.exe** (IMVU will be closed automatically if it is running).
+3. Restart IMVU and click the smiley button beside **Send**.
+
+To undo the patch, run the same exe with `--restore` (or from a terminal: `IMVU-Emoji-Installer.exe --restore`).
+
+**Build the installer yourself** (requires Python 3):
+
+```powershell
+.\build_installer.ps1
+```
+
+Output: `dist\IMVU-Emoji-Installer.exe` (single file — bundles Python, patch logic, and all emoji assets; no separate install step).
+
+**Option B — Python script**
+
 1. Close IMVU completely.
-2. Run:
+2. Run from the repo root:
    ```powershell
    python .\patch_imvu_emoji.py
    ```
