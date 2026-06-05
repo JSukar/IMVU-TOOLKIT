@@ -1,6 +1,134 @@
-# IMVU Classic Sharp-DPI Fix Toolkit (Windows)
+# IMVU Classic Fix Toolkit (Windows)
 
-## First to Try: Windows-Level Scaling Fix
+Fix chat emoji on IMVU Classic’s old Gecko engine, with a searchable picker, text shortcuts, and Twemoji rendering — plus optional DPI scaling patches for high-DPI displays.
+
+---
+
+## Emoji Fix (Start Here)
+
+IMVU Classic cannot render modern Unicode emoji natively. Missing glyphs show up as hex “tofu” boxes (for example `01FAEA`). This patch fixes chat rendering and adds a full emoji picker next to **Send**.
+
+**Independent of DPI patches** — you can install emoji support alone with `patch_imvu_emoji.py`.
+
+### Quick start
+
+1. Close IMVU completely.
+2. Run:
+   ```powershell
+   python .\patch_imvu_emoji.py
+   ```
+3. Restart IMVU.
+4. Click the smiley button beside **Send**, pick an emoji, and send a message.
+5. Confirm emoji render as Twemoji images in chat history.
+
+Restore:
+
+```powershell
+python .\patch_imvu_emoji.py --restore
+```
+
+### Emoji picker
+
+Click the smiley button between the chat input and **Send** to open the picker. It opens **above** the emoji button as a floating overlay (not clipped inside the chat history box when the parent window is accessible).
+
+![Emoji picker with search, categories, and emoji grid](docs/emoji-picker.png)
+
+- **Search** — type keywords (`heart`, `cat`, `flag us`, `laugh`, etc.) to filter ~1,880 Unicode 15.1 emojis.
+- **Categories** — Smileys, People, Nature, Food, Travel, Activity, Objects, Symbols, Flags when search is empty.
+- **Insert** — click any tile to add emoji at the cursor; picker stays open for multiple picks.
+- **Close** — Escape or click outside the picker.
+- **Cache** — Twemoji PNGs load from jsDelivr on first use, then reuse from **localStorage** (verified HTTP 200 before caching).
+
+### About (i icon)
+
+Click **i** in the picker header for credits and the project link.
+
+![About panel: This was made by J0 with GitHub link](docs/emoji-picker-about.png)
+
+### Settings (gear icon)
+
+Click **⚙** in the picker header for shortcut and recommendation options. Settings are saved in memory and localStorage when IMVU allows it.
+
+![Gear settings: replace vs append, show vs hide recommendations](docs/emoji-picker-settings.png)
+
+**Text shortcuts (LOL, :) )**
+
+| Option | Behavior |
+| --- | --- |
+| **Replace word with emoji** | `lol` → 😂 (word removed) |
+| **Keep word, add emoji after** | `lol` → `lol 😂` (word kept) |
+
+**Recommendations**
+
+| Option | Behavior |
+| --- | --- |
+| **Show shortcut suggestions** | Suggestion pill appears while typing (default) |
+| **Hide shortcut suggestions** | No pills; Tab will not apply shortcuts |
+
+### Text shortcut suggestions
+
+Type triggers like **LOL**, **LMAO**, **&lt;3**, **:)**, **ty**, **fire**, **gg** — a pill appears above the input.
+
+![Shortcut suggestion: LOL + 😂 pill above chat input](docs/emoji-shortcut-suggestion.png)
+
+- **Accept** — click the pill or press **Tab**.
+- **Dismiss** — **Escape**.
+- Arrow shows **→** in replace mode and **+** in append mode.
+
+### Chat rendering after patch
+
+Emoji in whispers and history render as Twemoji images instead of hex boxes:
+
+![IMVU chat with emoji rendering correctly after the emoji fix](docs/emoji-fix-after.png)
+
+### How it works
+
+| Layer | What changes |
+| --- | --- |
+| `library.zip` | `im/common.py` decodes message bytes as UTF-8 first, Windows-1252 fallback |
+| `imvuContent.jar` | Injects `emojiCache.js`, `emojiDisplay.js`, `emojiList.js`, `emojiPicker.js`, `emojiSuggestions.js` |
+| Chat HTML/JS | `linkifyWithEmoji`, UTF-8 charset, picker CSS |
+| CDN | Primary: jsDelivr Twemoji `72x72` PNG; fallback: `emojicdn.elk.sh` |
+
+### Requirements
+
+- Python 3.x
+- IMVU fully closed while patching
+- Write access to `%APPDATA%\IMVUClient\library.zip` and `ui\chrome\imvuContent.jar`
+- Internet on first use per emoji (then cached locally)
+
+### What it does not fix
+
+- Emoji in non-chat UI (profile cards, room titles, native dialogs).
+- Skin-tone modifier pickers (base people emojis are included).
+- Offline use before the cache is warm (first session needs CDN).
+- New Unicode/Twemoji versions until you regenerate the catalog with `generate_emoji_list.py`.
+
+### Emoji asset files (repo)
+
+- `patch_imvu_emoji.py` — apply/restore script
+- `emoji_assets/js/emojiDisplay.js` — Twemoji `<img>` in chat history
+- `emoji_assets/js/emojiList.js` — searchable catalog (~1,880 emojis)
+- `emoji_assets/js/emojiPicker.js` — button + picker UI
+- `emoji_assets/js/emojiSuggestions.js` — LOL / :) suggestion bar
+- `emoji_assets/js/emojiCache.js` — localStorage Twemoji cache
+- `generate_emoji_list.py` — regenerate `emojiList.js` from Unicode data
+
+Backups: `library.zip.bak-emoji-*` and `imvuContent.jar.bak-emoji-*`.
+
+---
+
+## Sharp-DPI Fix (High-DPI Displays)
+
+Technical tooling for diagnosing and patching IMVU Classic DPI-scaling regressions on high-DPI displays (for example, 240 DPI / 250% scale).
+
+This includes a safe **Windows compatibility scaling helper** plus optional **mechanical, reversible binary/source patching** of IMVU runtime assets (`library.zip` and `imvuContent.jar`) and **window-level instrumentation** to validate behavior before/after each patch.
+
+> **Note:** This does not fully fix in-room UI behavior or notification issues yet. I did not finish those parts, so feel free to modify and extend this project to make it fully functional (I got lazy).
+
+---
+
+### First to Try: Windows-Level Scaling Fix
 
 Start with `fix_imvu_scaling.py` before using the internal patch scripts.
 
@@ -77,19 +205,6 @@ functionally but the lower-quality scaled output is not acceptable.
 
 ---
 
-> **Note:** This does not fully fix in-room UI behavior or notification issues yet. I did not finish those parts, so feel free to modify and extend this project to make it fully functional (I got lazy).
-
-> **Emoji fix:** Chat emoji rendering is a separate patch (`patch_imvu_emoji.py`) and does **not** require any DPI patch. See [Emoji Fix (Standalone)](#emoji-fix-standalone) below.
-
-Technical tooling for diagnosing and patching IMVU Classic DPI-scaling regressions on high-DPI displays (for example, 240 DPI / 250% scale).
-
-This repository includes a safe **Windows compatibility scaling helper** plus
-more aggressive **mechanical, reversible binary/source patching** of IMVU
-runtime assets (`library.zip` and `imvuContent.jar`) and **window-level
-instrumentation** to validate behavior before/after each patch.
-
----
-
 ## 1) Problem Model
 
 When IMVU Classic runs in sharp/high-DPI mode, multiple rendering/input layers can disagree on coordinate systems:
@@ -131,9 +246,9 @@ The scripts here treat these as **separate failure classes** and patch each clas
 - `patch_imvu_white_line.py`  
   Tab/3D background seam fix.
 - `patch_imvu_emoji.py`  
-  Chat emoji rendering (UTF-8 message decode + Twemoji images in chat UI).
-- `emoji_assets/js/emojiDisplay.js`  
-  Twemoji helper injected into `imvuContent.jar` by `patch_imvu_emoji.py`.
+  Chat emoji rendering, picker, shortcuts, and Twemoji cache — see [Emoji Fix (Start Here)](#emoji-fix-start-here).
+- `emoji_assets/js/*`  
+  Emoji JS injected by `patch_imvu_emoji.py`.
 - `library_decompiled_structured/im/common.py`  
   Patched `ImMessage` source used when rebuilding `library.zip`.
 
@@ -361,114 +476,23 @@ python .\patch_imvu_white_line.py
 
 ## 5.6 `patch_imvu_emoji.py`
 
-Goal:
+Chat emoji patch — full documentation, screenshots, and usage are in [Emoji Fix (Start Here)](#emoji-fix-start-here).
 
-- Render modern Unicode emoji in chat whispers/history on IMVU's old Gecko 1.9 engine.
-
-Problem:
-
-- IMVU Classic cannot paint color emoji fonts; missing glyphs appear as hex "tofu" boxes (for example `01FAEA`).
-- Pasting emoji elsewhere on Windows works; only the in-client chat panel is affected.
-
-Patch details:
-
-- `library.zip`: inject `im/common.py` that decodes message bytes as UTF-8 first, then falls back to Windows-1252.
-- `imvuContent.jar`:
-  - adds `js/emojiDisplay.js` (Twemoji `<img>` replacement),
-  - updates `tool/chat` and `tool/newchat` to call `linkifyWithEmoji`,
-  - sets chat HTML charset to UTF-8,
-  - adds emoji font fallbacks in `css/font.css`.
-
-Requirements:
-
-- IMVU must be fully closed before patching.
-- Chat emoji images load from CDN (internet required while chatting).
-
-Restore source:
-
-- Latest `library.zip.bak-emoji-*` and `imvuContent.jar.bak-emoji-*`.
-
-Example:
+Summary: UTF-8 message decode, Twemoji chat rendering, searchable picker (~1,880 emojis), text shortcuts with replace/append modes, recommendation toggle, and localStorage caching.
 
 ```powershell
 python .\patch_imvu_emoji.py
 ```
 
-Undo:
-
-```powershell
-python .\patch_imvu_emoji.py --restore
-```
-
-How it works at runtime:
-
-- Incoming chat bytes are decoded as UTF-8 first in `ImMessage` (`im/common.py`).
-- Chat tools call `linkifyWithEmoji` instead of plain `linkify`.
-- Each emoji run is split out and rendered as a Twemoji `<img>` (`emojiDisplay.js`).
-- Primary CDN: jsDelivr Twemoji assets (`72x72` PNG).
-- Fallback CDN: `emojicdn.elk.sh` if the primary image fails to load.
-- URLs and non-emoji text still go through the original `linkify` path.
-
-What it does **not** fix:
-
-- Emoji in non-chat UI (profile cards, room titles, native dialogs).
-- Offline chat emoji (CDN must be reachable while messages render).
-- Every rare Unicode edge case (ZWJ sequences, newest emoji added after Twemoji).
-
----
-
-## Emoji Fix (Standalone)
-
-Use this when chat shows hex tofu boxes like `01FAEA` instead of emoji. This is
-independent of DPI scaling — you can apply it with or without any other patch in
-this repo.
-
-### Quick start
-
-1. Close IMVU completely.
-2. Run:
-   ```powershell
-   python .\patch_imvu_emoji.py
-   ```
-3. Restart IMVU.
-4. Send or receive a message with emoji in chat and confirm images render.
-
-### Final fix: what it should look like
-
-After `patch_imvu_emoji.py` is applied and IMVU is restarted, chat emoji should
-render as Twemoji images instead of hex tofu boxes. Example from a working setup:
-
-![IMVU chat with emoji rendering correctly after the emoji fix](docs/emoji-fix-after.png)
-
-You should see color emoji inline in whispers/history (faces, symbols, flags,
-etc.) at a readable size next to normal linkified text.
-
-### Restore
-
-```powershell
-python .\patch_imvu_emoji.py --restore
-```
-
-### Requirements
-
-- Python 3.x
-- Write access to `%APPDATA%\IMVUClient\library.zip` and `imvuContent.jar`
-- Internet while chatting (emoji load as remote Twemoji PNGs)
-
-### Files touched
-
-| Target | Change |
-| --- | --- |
-| `library.zip` | Adds patched `im/common.py` (UTF-8 decode with Windows-1252 fallback) |
-| `imvuContent.jar` | Injects `js/emojiDisplay.js`, updates chat HTML/JS/CSS, UTF-8 charset |
-
-Backups: `library.zip.bak-emoji-*` and `imvuContent.jar.bak-emoji-*`.
-
 ---
 
 ## 6) Recommended End-to-End Runbook
 
-### 6.1 Safe first runbook
+### 6.1 Emoji only (most users)
+
+See [Emoji Fix (Start Here)](#emoji-fix-start-here). No registry changes, DPI probes, or other patch scripts required.
+
+### 6.2 Safe DPI first runbook
 
 1. Start IMVU normally.
 2. Run:
@@ -490,7 +514,7 @@ blur/softness because Windows is scaling the final IMVU window output.
 If the effective in-game resolution is too low or the softness is unacceptable,
 continue with the deep patch runbook below.
 
-### 6.2 Deep patch runbook
+### 6.3 Deep patch runbook
 
 1. Close IMVU completely.
 2. Capture baseline probe in compatible mode.
@@ -501,22 +525,12 @@ continue with the deep patch runbook below.
    - `patch_imvu_overlay_click_remap.py`
    - `patch_imvu_dialog_scaling.py`
    - `patch_imvu_white_line.py`
-   - `patch_imvu_emoji.py` (independent of DPI; fixes chat emoji rendering)
+   - `patch_imvu_emoji.py` (independent of DPI; see [Emoji Fix](#emoji-fix-start-here))
 5. Relaunch IMVU in sharp mode.
 6. Capture sharp probe.
 7. Run compare + audit and inspect ratio/classification changes.
 
 If behavior regresses, restore the specific patch family first rather than rolling back everything at once.
-
-### 6.3 Emoji-only runbook
-
-If you only want chat emoji and do not need DPI fixes:
-
-1. Close IMVU completely.
-2. Run `python .\patch_imvu_emoji.py`.
-3. Restart IMVU and test chat whispers/history.
-
-No registry changes, no DPI probes, and no other patch scripts are required.
 
 ---
 
@@ -547,6 +561,18 @@ No registry changes, no DPI probes, and no other patch scripts are required.
 
 - `Missing emoji_assets/js/emojiDisplay.js`  
   Clone/download the full repo; the JS asset must be present locally before patching.
+
+- Emoji picker button missing after patch  
+  Rerun `patch_imvu_emoji.py` to upgrade an older emoji-only install, then restart IMVU.
+
+- Picker opens but emoji tiles are blank  
+  CDN blocked or offline. Allow `cdn.jsdelivr.net` while the picker is open.
+
+- Shortcut suggestions still appear after choosing **Hide**  
+  Rerun `patch_imvu_emoji.py` and restart IMVU to pick up the latest JS.
+
+- Append mode still replaces the word  
+  Open gear → **Keep word, add emoji after**, then accept with Tab or click the pill.
 
 - `Could not find ImMessage windows-1252 decode line`  
   Your IMVU build differs from expected `library.zip` layout.  
