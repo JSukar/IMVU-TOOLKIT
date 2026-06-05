@@ -56,13 +56,17 @@
     }
 
     function emojiImageElement(emojiStr) {
-        var hex = codePointsToTwemojiHex(emojiStr);
+        var cache = IMVU.Client.EmojiCache;
+        var hex = cache ? cache.hexFromEmoji(emojiStr) : codePointsToTwemojiHex(emojiStr);
         var img = document.createElement('img');
         img.className = 'emoji-inline';
         img.alt = emojiStr;
         img.title = emojiStr;
-        img.src = TWEMOJI_BASE + hex + '.png';
+        img.src = cache ? cache.getSrc(hex) : (TWEMOJI_BASE + hex + '.png');
         img.setAttribute('draggable', 'false');
+        if (cache) {
+            cache.upgradeImg(img, hex);
+        }
         img.onerror = function () {
             if (!this.__emojiFallback) {
                 this.__emojiFallback = true;

@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-"""Patch IMVU Classic so chat emoji render instead of tofu/hex boxes.
-
-IMVU uses Gecko 1.9 (Firefox 3 era), which cannot paint modern color emoji fonts.
-This patch:
-  1. library.zip — decode chat bytes as UTF-8 first.
-  2. imvuContent.jar — Twemoji <img> replacement in chat + UTF-8 page charset.
-"""
-
 import argparse
 import glob
 import os
@@ -18,13 +9,18 @@ import time
 import zipfile
 
 
-DEFAULT_IMVU_DIR = r"C:\Users\Null\AppData\Roaming\IMVUClient"
+DEFAULT_IMVU_DIR = os.path.join(os.environ.get("APPDATA", ""), "IMVUClient")
 COMMON_SOURCE = os.path.join("library_decompiled_structured", "im", "common.py")
+EMOJI_CACHE_SOURCE = os.path.join("emoji_assets", "js", "emojiCache.js")
 EMOJI_JS_SOURCE = os.path.join("emoji_assets", "js", "emojiDisplay.js")
+EMOJI_LIST_SOURCE = os.path.join("emoji_assets", "js", "emojiList.js")
+EMOJI_PICKER_SOURCE = os.path.join("emoji_assets", "js", "emojiPicker.js")
+EMOJI_SUGGESTIONS_SOURCE = os.path.join("emoji_assets", "js", "emojiSuggestions.js")
 ZIP_COMMON_SOURCE = "im/common.py"
 ZIP_COMMON_BYTECODE = "im/common.pyo"
 PATCH_MARKER = "# IMVU emoji/unicode patch"
 JS_PATCH_MARKER = "IMVU emoji display patch"
+PICKER_PATCH_MARKER = "IMVU emoji picker patch"
 
 FONT_ENTRY = "css/font.css"
 FONT_OLD = (
@@ -37,7 +33,13 @@ FONT_NEW = (
     '"Lucida Grande", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;'
 )
 
-JAR_JS_ENTRY = "js/emojiDisplay.js"
+JAR_JS_ENTRIES = {
+    "js/emojiCache.js": EMOJI_CACHE_SOURCE,
+    "js/emojiDisplay.js": EMOJI_JS_SOURCE,
+    "js/emojiList.js": EMOJI_LIST_SOURCE,
+    "js/emojiPicker.js": EMOJI_PICKER_SOURCE,
+    "js/emojiSuggestions.js": EMOJI_SUGGESTIONS_SOURCE,
+}
 CHAT_JS_FILES = ("tool/chat/ChatTool.js", "tool/newchat/ChatTool.js")
 CHAT_HTML_FILES = ("tool/chat/index.html", "tool/newchat/index.html")
 CHAT_STYLE_FILES = ("tool/chat/style.css", "tool/newchat/style.css")
@@ -51,7 +53,27 @@ CHARSET_NEW = 'content="text/html; charset=UTF-8"'
 IMVU_SCRIPT_OLD = '<script src="../../js/imvu.js"></script>'
 IMVU_SCRIPT_NEW = (
     '<script src="../../js/imvu.js"></script>\n'
-    '        <script src="../../js/emojiDisplay.js"></script>'
+    '        <script src="../../js/emojiCache.js"></script>\n'
+    '        <script src="../../js/emojiDisplay.js"></script>\n'
+    '        <script src="../../js/emojiList.js"></script>\n'
+    '        <script src="../../js/emojiSuggestions.js"></script>\n'
+    '        <script src="../../js/emojiPicker.js"></script>'
+)
+EMOJI_DISPLAY_ONLY = '<script src="../../js/emojiDisplay.js"></script>'
+EMOJI_DISPLAY_WITH_PICKER = (
+    '<script src="../../js/emojiCache.js"></script>\n'
+    '        <script src="../../js/emojiDisplay.js"></script>\n'
+    '        <script src="../../js/emojiList.js"></script>\n'
+    '        <script src="../../js/emojiSuggestions.js"></script>\n'
+    '        <script src="../../js/emojiPicker.js"></script>'
+)
+EMOJI_SCRIPT_WRONG_ORDER = (
+    '<script src="../../js/emojiPicker.js"></script>\n'
+    '        <script src="../../js/emojiSuggestions.js"></script>'
+)
+EMOJI_SCRIPT_RIGHT_ORDER = (
+    '<script src="../../js/emojiSuggestions.js"></script>\n'
+    '        <script src="../../js/emojiPicker.js"></script>'
 )
 
 EMOJI_CSS = """
@@ -61,6 +83,329 @@ img.emoji-inline {
     width: 1.15em;
     margin: 0 1px;
     vertical-align: -0.15em;
+    border: 0;
+}
+"""
+
+PICKER_CSS = """
+/* IMVU emoji picker patch */
+#text-chat.imvu-emoji-picker-root {
+    overflow: visible;
+}
+#input-row-wrapper.imvu-emoji-picker-host {
+    overflow: visible;
+    z-index: 100;
+}
+#inputRow .imvu-emoji-button {
+    -moz-box-flex: 0;
+    display: inline-block;
+    width: 34px;
+    height: 30px;
+    line-height: 28px;
+    margin: 3px 0 3px 3px;
+    padding: 0;
+    border: 1px solid #444;
+    background: #222;
+    cursor: pointer;
+    vertical-align: bottom;
+    -moz-user-select: none;
+    text-align: center;
+}
+#inputRow .imvu-emoji-button img {
+    width: 22px;
+    height: 22px;
+    vertical-align: middle;
+    border: 0;
+}
+#inputRow .imvu-emoji-button:hover {
+    background: #333;
+}
+.redesign #inputRow .imvu-emoji-button {
+    width: 28px;
+    height: 25px;
+    line-height: 23px;
+    margin: 0 0 0 2px;
+    padding: 0;
+    border: 0;
+    background: #000;
+}
+.redesign #inputRow .imvu-emoji-button img {
+    width: 20px;
+    height: 20px;
+}
+.imvu-emoji-picker {
+    position: fixed;
+    width: 268px;
+    background: #1a1a1a;
+    border: 1px solid #555;
+    -moz-border-radius: 4px;
+    -moz-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    z-index: 999999;
+    overflow: visible;
+}
+.imvu-emoji-picker.hidden {
+    display: none;
+}
+.imvu-emoji-picker-search-wrap {
+    position: relative;
+    padding: 8px;
+    border-bottom: 1px solid #333;
+    overflow: visible;
+}
+.imvu-emoji-picker-search {
+    display: block;
+    width: auto;
+    height: 28px;
+    margin-right: 62px;
+    -moz-box-sizing: border-box;
+    padding: 5px 8px;
+    border: 1px solid #444;
+    background: #111;
+    color: #fff;
+    font-size: 12px;
+    line-height: 16px;
+}
+.imvu-emoji-picker-search.hint {
+    color: #929292;
+}
+.imvu-emoji-picker-header-btns {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    width: 58px;
+    height: 28px;
+    line-height: 28px;
+    text-align: right;
+    white-space: nowrap;
+    z-index: 5;
+}
+.imvu-emoji-picker-gear,
+.imvu-emoji-picker-info {
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    margin: 0 0 0 4px;
+    padding: 0;
+    border: 1px solid #444;
+    background: #222;
+    color: #bbb;
+    text-align: center;
+    cursor: pointer;
+    -moz-border-radius: 13px;
+    vertical-align: middle;
+    overflow: hidden;
+    -moz-user-select: none;
+}
+.imvu-emoji-picker-info {
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+    font-weight: bold;
+    font-size: 13px;
+    line-height: 26px;
+}
+.imvu-emoji-picker-gear {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 26px;
+    padding-top: 1px;
+}
+.imvu-emoji-picker-gear:hover,
+.imvu-emoji-picker-info:hover {
+    background: #333;
+    color: #fff;
+}
+.imvu-emoji-picker-settings {
+    position: absolute;
+    right: 8px;
+    top: 48px;
+    min-width: 188px;
+    padding: 4px;
+    border: 1px solid #555;
+    background: #1a1a1a;
+    -moz-border-radius: 4px;
+    -moz-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    z-index: 1000000;
+}
+.imvu-emoji-picker-settings.hidden {
+    display: none;
+}
+.imvu-emoji-picker-about {
+    position: absolute;
+    right: 8px;
+    top: 48px;
+    min-width: 180px;
+    padding: 8px 10px;
+    border: 1px solid #555;
+    background: #1a1a1a;
+    -moz-border-radius: 4px;
+    -moz-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    z-index: 1000000;
+    color: #ccc;
+    font-size: 11px;
+    line-height: 1.4;
+}
+.imvu-emoji-picker-about.hidden {
+    display: none;
+}
+.imvu-emoji-picker-about a {
+    color: #6eb5ff;
+    text-decoration: underline;
+}
+.imvu-emoji-picker-about a:hover {
+    color: #9ecdff;
+}
+.imvu-emoji-picker-settings-title {
+    color: #888;
+    font-size: 9px;
+    padding: 2px 4px 4px;
+    text-transform: uppercase;
+}
+.imvu-emoji-picker-settings-divider {
+    border-top: 1px solid #333;
+    margin: 4px 0 2px;
+}
+.imvu-emoji-picker-settings-mode {
+    display: block;
+    width: 100%;
+    margin: 0 0 2px 0;
+    padding: 4px 6px;
+    border: 0;
+    background: transparent;
+    color: #ccc;
+    font-size: 10px;
+    text-align: left;
+    cursor: pointer;
+    -moz-border-radius: 3px;
+}
+.imvu-emoji-picker-settings-mode:hover {
+    background: #333;
+}
+.imvu-emoji-picker-settings-mode.active {
+    background: #444;
+    color: #fff;
+}
+.imvu-emoji-picker-tabs {
+    padding: 4px 6px 3px;
+    border-bottom: 1px solid #333;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 28px;
+    line-height: 20px;
+    background: #1a1a1a;
+}
+.imvu-emoji-picker-tab {
+    display: inline-block;
+    margin: 0 2px 0 0;
+    padding: 2px 6px;
+    border: 0;
+    background: transparent;
+    color: #aaa;
+    font-size: 11px;
+    cursor: pointer;
+    -moz-border-radius: 2px;
+    line-height: 18px;
+}
+.imvu-emoji-picker-tab.active {
+    background: #333;
+    color: #fff;
+}
+.imvu-emoji-picker-grid-wrap {
+    height: 240px;
+    min-height: 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #1a1a1a;
+    -moz-border-radius: 0 0 4px 4px;
+}
+.imvu-emoji-picker-grid {
+    padding: 4px;
+    line-height: 0;
+}
+.imvu-emoji-picker-item {
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 2px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    -moz-border-radius: 2px;
+    display: inline-block;
+    vertical-align: top;
+    line-height: 0;
+    text-align: center;
+}
+.imvu-emoji-picker-item:hover {
+    background: #333;
+}
+.imvu-emoji-picker-item img {
+    width: 28px;
+    height: 28px;
+    border: 0;
+    vertical-align: middle;
+}
+.imvu-emoji-picker-item-fallback {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    font-size: 16px;
+    text-align: center;
+    vertical-align: middle;
+}
+.imvu-emoji-picker-empty {
+    color: #888;
+    font-size: 11px;
+    padding: 10px;
+    text-align: center;
+}
+.imvu-emoji-suggest-host {
+    position: absolute;
+    left: 4px;
+    bottom: 100%;
+    margin-bottom: 2px;
+    z-index: 9998;
+    white-space: nowrap;
+}
+.imvu-emoji-suggest {
+    display: inline-block;
+    vertical-align: middle;
+}
+.imvu-emoji-suggest.hidden {
+    display: none;
+}
+.imvu-emoji-suggest-btn {
+    display: inline-block;
+    margin: 0;
+    padding: 3px 8px;
+    border: 1px solid #555;
+    background: #222;
+    color: #ddd;
+    font-size: 11px;
+    cursor: pointer;
+    -moz-border-radius: 12px;
+    -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
+    line-height: 20px;
+    vertical-align: middle;
+}
+.imvu-emoji-suggest-btn:hover {
+    background: #333;
+    border-color: #777;
+}
+.imvu-emoji-suggest-word {
+    font-weight: bold;
+    color: #fff;
+    margin-right: 4px;
+}
+.imvu-emoji-suggest-arrow {
+    color: #888;
+    margin-right: 4px;
+}
+.imvu-emoji-suggest-img {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
     border: 0;
 }
 """
@@ -138,9 +483,50 @@ def build_common_source():
     return text.encode("utf-8")
 
 
-def read_emoji_js():
-    with open(EMOJI_JS_SOURCE, "r", encoding="utf-8") as f:
+def read_asset(path):
+    with open(path, "r", encoding="utf-8") as f:
         return f.read().encode("utf-8")
+
+
+def ensure_emoji_scripts(text):
+    if "emojiCache.js" not in text and "emojiDisplay.js" in text:
+        text = text.replace(
+            '<script src="../../js/emojiDisplay.js"></script>',
+            '<script src="../../js/emojiCache.js"></script>\n'
+            '        <script src="../../js/emojiDisplay.js"></script>',
+            1,
+        )
+    if EMOJI_SCRIPT_WRONG_ORDER in text:
+        text = text.replace(EMOJI_SCRIPT_WRONG_ORDER, EMOJI_SCRIPT_RIGHT_ORDER, 1)
+    if "emojiSuggestions.js" not in text and "emojiPicker.js" in text:
+        text = text.replace(
+            '<script src="../../js/emojiPicker.js"></script>',
+            '<script src="../../js/emojiSuggestions.js"></script>\n'
+            '        <script src="../../js/emojiPicker.js"></script>',
+            1,
+        )
+    if "emojiPicker.js" in text:
+        return text
+    if EMOJI_DISPLAY_ONLY in text:
+        return text.replace(EMOJI_DISPLAY_ONLY, EMOJI_DISPLAY_WITH_PICKER, 1)
+    if IMVU_SCRIPT_OLD in text and "emojiDisplay.js" not in text:
+        return text.replace(IMVU_SCRIPT_OLD, IMVU_SCRIPT_NEW, 1)
+    if "emojiDisplay.js" not in text:
+        raise RuntimeError("Could not inject emoji script tags.")
+    return text
+
+
+def patch_style_css(text):
+    if JS_PATCH_MARKER not in text:
+        text = text.rstrip() + EMOJI_CSS + "\n"
+
+    marker = "/* IMVU emoji picker patch */"
+    if marker in text:
+        idx = text.index(marker)
+        text = text[:idx].rstrip() + "\n" + PICKER_CSS + "\n"
+    elif PICKER_PATCH_MARKER not in text:
+        text = text.rstrip() + PICKER_CSS + "\n"
+    return text
 
 
 def patch_text_file(text, path):
@@ -156,14 +542,10 @@ def patch_text_file(text, path):
     elif path.endswith(".html"):
         if CHARSET_OLD in text:
             text = text.replace(CHARSET_OLD, CHARSET_NEW, 1)
-        if IMVU_SCRIPT_OLD in text and "emojiDisplay.js" not in text:
-            text = text.replace(IMVU_SCRIPT_OLD, IMVU_SCRIPT_NEW, 1)
-        elif "emojiDisplay.js" not in text:
-            raise RuntimeError("%s: could not inject emojiDisplay.js script tag" % path)
+        text = ensure_emoji_scripts(text)
 
     elif path.endswith("style.css"):
-        if JS_PATCH_MARKER not in text:
-            text = text.rstrip() + EMOJI_CSS + "\n"
+        text = patch_style_css(text)
 
     return text
 
@@ -187,8 +569,9 @@ def patch_content_jar(jar_path):
     )
     os.close(fd)
 
-    emoji_js = read_emoji_js()
-    overrides = {JAR_JS_ENTRY: emoji_js}
+    overrides = {}
+    for jar_entry, source_path in JAR_JS_ENTRIES.items():
+        overrides[jar_entry] = read_asset(source_path)
 
     try:
         with zipfile.ZipFile(jar_path, "r") as zin:
@@ -285,14 +668,16 @@ def main():
     jar_path = content_jar_path(args)
     imvu_dir = os.path.dirname(library)
 
+    for path in (EMOJI_JS_SOURCE, EMOJI_LIST_SOURCE, EMOJI_PICKER_SOURCE):
+        if not os.path.exists(path):
+            print("Missing %s" % path, file=sys.stderr)
+            return 1
+
     if not os.path.exists(library):
         print("Missing library.zip: %s" % library, file=sys.stderr)
         return 1
     if not os.path.exists(jar_path):
         print("Missing imvuContent.jar: %s" % jar_path, file=sys.stderr)
-        return 1
-    if not os.path.exists(EMOJI_JS_SOURCE):
-        print("Missing %s" % EMOJI_JS_SOURCE, file=sys.stderr)
         return 1
 
     if imvu_is_running(imvu_dir) and not args.force:
@@ -311,7 +696,7 @@ def main():
     jar_backup = patch_content_jar(jar_path)
     print("Patched chat message UTF-8 decoding in %s" % library)
     print("Library backup: %s" % lib_backup)
-    print("Patched Twemoji chat rendering in %s" % jar_path)
+    print("Patched Twemoji chat rendering + emoji picker in %s" % jar_path)
     print("Content backup: %s" % jar_backup)
     print("Restart IMVU to load the changes.")
     print("Note: emoji images load from jsDelivr (internet required in chat).")
