@@ -1,0 +1,2 @@
+[console_scripts]
+imvu-toolkit = imvu_toolkit.cli:main

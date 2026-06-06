@@ -1,0 +1,8 @@
+
+[build]
+pyinstaller>=6.0
+pillow>=10.0
+
+[dev]
+pytest>=8.0
+ruff>=0.4

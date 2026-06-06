@@ -1,3 +1,25 @@
+Metadata-Version: 2.4
+Name: imvu-toolkit
+Version: 1.0.0
+Summary: Fix chat emoji and optional DPI scaling for IMVU Classic on Windows
+Author: JSukar
+License: MIT
+Keywords: imvu,emoji,dpi,windows
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Games/Entertainment
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
+Provides-Extra: build
+Requires-Dist: pyinstaller>=6.0; extra == "build"
+Requires-Dist: pillow>=10.0; extra == "build"
+Dynamic: license-file
+
 # IMVU Classic Fix Toolkit (Windows)
 
 Fix chat emoji on IMVU Classic’s old Gecko engine, with a searchable picker, text shortcuts, and Twemoji rendering — plus optional DPI scaling patches for high-DPI displays.
@@ -22,7 +44,7 @@ pytest
 ruff check src tests
 ```
 
-Tag a release (`git tag v1.0.1 && git push origin v1.0.1`) to build and publish `IMVU-Emoji-Installer.exe` via GitHub Actions.
+Tag a release (`git tag v1.0.0 && git push origin v1.0.0`) to build and publish `IMVU-Emoji-Installer.exe` via GitHub Actions.
 
 ---
 

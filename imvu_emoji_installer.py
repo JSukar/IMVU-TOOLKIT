@@ -34,7 +34,11 @@ def main():
     restore = "--restore" in sys.argv
     print_banner(restore)
 
-    from patch_imvu_emoji import main as patch_main
+    root = os.path.dirname(os.path.abspath(__file__))
+    if root not in sys.path:
+        sys.path.insert(0, os.path.join(root, "src"))
+
+    from imvu_toolkit.patches.emoji.patch import main as patch_main
 
     code = patch_main()
 

@@ -16,10 +16,18 @@ datas = [
 
 a = Analysis(
     [os.path.join(ROOT, "imvu_emoji_installer.py")],
-    pathex=[ROOT],
+    pathex=[ROOT, os.path.join(ROOT, "src")],
     binaries=[],
     datas=datas,
-    hiddenimports=["patch_imvu_emoji"],
+    hiddenimports=[
+        "imvu_toolkit",
+        "imvu_toolkit.paths",
+        "imvu_toolkit.imvu_process",
+        "imvu_toolkit.zip_utils",
+        "imvu_toolkit.patches.emoji.constants",
+        "imvu_toolkit.patches.emoji.transforms",
+        "imvu_toolkit.patches.emoji.patch",
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
