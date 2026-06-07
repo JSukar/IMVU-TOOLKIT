@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-06-08
+
+### Fixed
+
+- Empty **Favorites** tab no longer stacks the hint lines on top of each other (grid `line-height: 0` override)
+- GUI installer taskbar icon uses HiDPI `.ico` sizes (20–256px) and Win32 `WM_SETICON` for a sharper taskbar icon
+- GUI install no longer flashes PowerShell windows while waiting for IMVU to close; duplicate install clicks are ignored
+- GUI install wait loop no longer crashes when stdout is redirected to the log panel
+
+### Changed
+
+- **Tab** accepts text shortcut suggestions (replace or append per gear setting); improved handling on IMVU's Gecko engine
+- Expanded text shortcut dictionary (300+ words: slang, food, gaming, emoticons, reactions)
+- README includes GUI installer screenshot
+
 ## [1.1.0] - 2026-06-07
 
 ### Added

@@ -27,12 +27,47 @@ ERROR = "#e07070"
 GOLD = "#f5c542"
 
 
+def _set_windows_taskbar_icon(root: tk.Tk, ico_path: str) -> None:
+    """Set crisp small/large window icons on HiDPI taskbars (Tk iconbitmap alone is blurry)."""
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    IMAGE_ICON = 1
+    LR_LOADFROMFILE = 0x0010
+    WM_SETICON = 0x0080
+    ICON_SMALL = 0
+    ICON_BIG = 1
+
+    hwnd = wintypes.HWND(user32.GetParent(root.winfo_id()) or root.winfo_id())
+    abs_path = os.path.abspath(ico_path)
+
+    def load_icon(size: int) -> int:
+        handle = user32.LoadImageW(
+            None,
+            abs_path,
+            IMAGE_ICON,
+            size,
+            size,
+            LR_LOADFROMFILE,
+        )
+        return int(handle or 0)
+
+    small = load_icon(32) or load_icon(24) or load_icon(16)
+    big = load_icon(256) or load_icon(128) or load_icon(64) or load_icon(48)
+    if small:
+        user32.SendMessageW(hwnd, WM_SETICON, ICON_SMALL, small)
+    if big:
+        user32.SendMessageW(hwnd, WM_SETICON, ICON_BIG, big)
+
+
 class InstallerApp:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.log_queue: queue.Queue[str | None] = queue.Queue()
         self.worker: threading.Thread | None = None
         self.running = False
+        self._job_lock = threading.Lock()
         self._logo_photo = None
 
         root.title("IMVU Emoji Patch Installer")
@@ -46,11 +81,19 @@ class InstallerApp:
 
     def _set_window_icon(self) -> None:
         ico_path = asset_path("assets", "imvu-toolkit-logo.ico")
-        if os.path.isfile(ico_path):
+        if not os.path.isfile(ico_path):
+            return
+        if sys.platform == "win32":
             try:
-                self.root.iconbitmap(ico_path)
+                self.root.after_idle(
+                    lambda path=ico_path: _set_windows_taskbar_icon(self.root, path)
+                )
             except tk.TclError:
                 pass
+        try:
+            self.root.iconbitmap(ico_path)
+        except tk.TclError:
+            pass
 
     def _build_ui(self) -> None:
         outer = tk.Frame(self.root, bg=BG, padx=16, pady=16)
@@ -244,33 +287,34 @@ class InstallerApp:
             self.progress.stop()
 
     def start_job(self, restore: bool) -> None:
-        if self.running:
-            return
-        if restore and not messagebox.askyesno(
-            "Restore original files?",
-            (
-                "This removes the emoji patch and restores "
-                "library.zip / imvuContent.jar backups.\n\nContinue?"
-            ),
-            icon="warning",
-        ):
-            return
+        with self._job_lock:
+            if self.running:
+                return
+            if restore and not messagebox.askyesno(
+                "Restore original files?",
+                (
+                    "This removes the emoji patch and restores "
+                    "library.zip / imvuContent.jar backups.\n\nContinue?"
+                ),
+                icon="warning",
+            ):
+                return
 
-        self.running = True
-        self.set_busy(True)
-        self.log.configure(state=tk.NORMAL)
-        self.log.delete("1.0", tk.END)
-        self.log.configure(state=tk.DISABLED)
-        self.set_status("Running...", tone="active")
-        self.append_log("Mode: %s\n" % ("RESTORE" if restore else "INSTALL"))
-        self.append_log("-" * 48 + "\n")
+            self.running = True
+            self.set_busy(True)
+            self.log.configure(state=tk.NORMAL)
+            self.log.delete("1.0", tk.END)
+            self.log.configure(state=tk.DISABLED)
+            self.set_status("Running...", tone="active")
+            self.append_log("Mode: %s\n" % ("RESTORE" if restore else "INSTALL"))
+            self.append_log("-" * 48 + "\n")
 
-        self.worker = threading.Thread(
-            target=self._worker,
-            args=(restore,),
-            daemon=True,
-        )
-        self.worker.start()
+            self.worker = threading.Thread(
+                target=self._worker,
+                args=(restore,),
+                daemon=True,
+            )
+            self.worker.start()
 
     def _worker(self, restore: bool) -> None:
         stdout = sys.stdout
@@ -336,6 +380,9 @@ class _QueueStream:
 
     def flush(self) -> None:
         pass
+
+    def isatty(self) -> bool:
+        return False
 
 
 def main() -> int:

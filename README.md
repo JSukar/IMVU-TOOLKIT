@@ -56,6 +56,8 @@ Restore: `.\install.ps1 --restore`
 2. Run it — a window opens with **Install** / **Restore** buttons (if IMVU is open, close it when prompted).
 3. Click the smiley button beside **Send** in chat.
 
+![IMVU Emoji Patch Installer GUI](docs/gui-installer.png)
+
 **Option B — GUI from source (Python 3.10+)**
 
 ```powershell
@@ -101,7 +103,7 @@ Settings (gear) and about (i): [emoji-picker-settings.png](docs/emoji-picker-set
 - **Search** — filter ~1,880 Unicode 15.1 emojis by keyword
 - **Categories** — Smileys, People, Nature, Food, Travel, Activity, Objects, Symbols, Flags
 - **Favorites** — ★ button next to **i** opens your list; click ☆ on any emoji to add or remove (saved locally, persists across IMVU restarts)
-- **Shortcuts** — `lol`, `:)` , etc. with replace or append mode (gear icon)
+- **Shortcuts** — type `lol`, `bruh`, `pog`, `:)` , etc.; **Tab** accepts the suggestion (replace word or append emoji — gear icon); 300+ built-in shortcuts
 - **Cache** — Twemoji PNGs from jsDelivr, stored in localStorage after first load
 - **Restore** — timestamped backups + `--restore`
 

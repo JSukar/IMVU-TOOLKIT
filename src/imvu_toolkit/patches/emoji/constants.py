@@ -387,8 +387,10 @@ PICKER_CSS = """
     color: #f5c542;
 }
 .imvu-emoji-picker-empty {
+    display: block;
     color: #888;
     font-size: 11px;
+    line-height: 1.45;
     padding: 10px;
     text-align: center;
 }

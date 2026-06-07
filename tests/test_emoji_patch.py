@@ -22,7 +22,7 @@ def read_fixture(name):
 
 
 def test_version():
-    assert __version__ == "1.1.0"
+    assert __version__ == "1.1.1"
 
 
 def test_project_root_contains_assets():

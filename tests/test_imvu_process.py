@@ -1,4 +1,5 @@
 import os
+import subprocess
 from unittest.mock import patch
 
 from imvu_toolkit.imvu_process import (
@@ -51,6 +52,30 @@ def test_wait_for_imvu_closed_polls_until_exit(_mock_running, _mock_sleep, tmp_p
 
     assert ok is True
     assert err is None
+
+
+@patch("imvu_toolkit.imvu_process.time.sleep")
+@patch("imvu_toolkit.imvu_process.imvu_is_running", side_effect=[True, True, False])
+@patch("imvu_toolkit.imvu_process.sys.stdout")
+def test_wait_for_imvu_closed_gui_status_lines(_mock_stdout, _mock_running, _mock_sleep, tmp_path):
+    _mock_stdout.isatty.return_value = False
+
+    ok, err = wait_for_imvu_closed(str(tmp_path), poll_interval=0.01, timeout=5)
+
+    assert ok is True
+    assert err is None
+    printed = " ".join(str(c) for c in _mock_stdout.write.call_args_list)
+    assert "\r" not in printed
+
+
+def test_hidden_subprocess_kwargs_on_windows():
+    from imvu_toolkit.imvu_process import _hidden_subprocess_kwargs
+
+    kwargs = _hidden_subprocess_kwargs()
+    if os.name == "nt":
+        assert kwargs.get("creationflags") == subprocess.CREATE_NO_WINDOW
+    else:
+        assert kwargs == {}
 
 
 @patch("imvu_toolkit.imvu_process.imvu_is_running", return_value=True)

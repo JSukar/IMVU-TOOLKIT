@@ -6,7 +6,8 @@ from pathlib import Path
 
 from PIL import Image
 
-ICON_SIZES = (256, 128, 64, 48, 32, 16)
+# Include 20/24/40 for crisp Windows 10/11 taskbar icons at 125–200% scaling.
+ICON_SIZES = (256, 128, 64, 48, 40, 32, 24, 20, 16)
 
 
 def icon_frame(source: Image.Image, size: int) -> Image.Image:

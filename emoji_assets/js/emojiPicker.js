@@ -14,7 +14,7 @@
     var PICKER_MARKER = 'imvu-emoji-picker-installed';
     var PRELOAD_MARKER = 'imvu-emoji-preload-started';
     var REPO_URL = 'https://github.com/JSukar/IMVU-TOOLKIT';
-    var OVERLAY_STYLE_ID = 'imvu-emoji-picker-overlay-css-v4';
+    var OVERLAY_STYLE_ID = 'imvu-emoji-picker-overlay-css-v5';
     var FAVORITES_KEY = 'imvu_emoji_favorites';
     var FAVORITES_CATEGORY = 'favorites';
 
@@ -126,7 +126,7 @@
             + '.imvu-emoji-picker-item img{width:28px;height:28px;border:0;vertical-align:middle}'
             + '.imvu-emoji-picker-item-fallback{display:inline-block;width:28px;height:28px;line-height:28px;font-size:16px;'
             + 'text-align:center;vertical-align:middle}'
-            + '.imvu-emoji-picker-empty{color:#888;font-size:11px;padding:10px;text-align:center}'
+            + '.imvu-emoji-picker-empty{display:block;color:#888;font-size:11px;line-height:1.45;padding:10px;text-align:center}'
             + '.imvu-emoji-picker-fav-toggle{position:absolute;right:0;top:0;width:14px;height:14px;margin:0;padding:0;border:0;'
             + 'line-height:14px;font-size:11px;color:#777;background:#1a1a1a;cursor:pointer;text-align:center;z-index:2}'
             + '.imvu-emoji-picker-fav-toggle.active,.imvu-emoji-picker-fav-toggle:hover{color:#f5c542}'

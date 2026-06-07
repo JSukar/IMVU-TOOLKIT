@@ -204,6 +204,244 @@
             bell: '\uD83D\uDD14',
             lock: '\uD83D\uDD12',
             key: '\uD83D\uDD11',
+            lolol: '\uD83D\uDE02',
+            kek: '\uD83D\uDE02',
+            lul: '\uD83D\uDE02',
+            roflmao: '\uD83D\uDE02',
+            joy: '\uD83D\uDE02',
+            sob: '\uD83D\uDE2D',
+            bruh: '\uD83D\uDE12',
+            yikes: '\uD83D\uDE33',
+            sheesh: '\uD83D\uDE33',
+            cringe: '\uD83D\uDE35',
+            based: '\uD83D\uDC4D',
+            fr: '\uD83D\uDCAF',
+            ngl: '\uD83D\uDE10',
+            tbh: '\uD83D\uDE10',
+            smh: '\uD83D\uDE14',
+            fml: '\uD83D\uDE29',
+            noway: '\uD83D\uDE32',
+            pog: '\uD83D\uDE32',
+            poggers: '\uD83D\uDE32',
+            bussin: '\uD83D\uDE0B',
+            mid: '\uD83D\uDE10',
+            salty: '\uD83E\uDD28',
+            petty: '\uD83D\uDE12',
+            shook: '\uD83D\uDE33',
+            hyped: '\uD83D\uDE0D',
+            excited: '\uD83D\uDE0D',
+            nervous: '\uD83D\uDE30',
+            scared: '\uD83D\uDE28',
+            worried: '\uD83D\uDE1F',
+            confused: '\uD83D\uDE15',
+            bored: '\uD83D\uDE34',
+            annoyed: '\uD83D\uDE12',
+            furious: '\uD83D\uDE21',
+            grateful: '\uD83D\uDE4F',
+            proud: '\uD83D\uDC4F',
+            blessed: '\uD83D\uDE4F',
+            jealous: '\uD83D\uDE0F',
+            lonely: '\uD83D\uDE14',
+            awkward: '\uD83D\uDE05',
+            embarrassed: '\uD83D\uDE33',
+            stressed: '\uD83D\uDE30',
+            chill: '\uD83D\uDE0E',
+            cozy: '\uD83D\uDE0C',
+            inlove: '\uD83D\uDE0D',
+            hearteyes: '\uD83D\uDE0D',
+            ilu: '\u2764',
+            ilysm: '\u2764',
+            luv: '\u2764',
+            luvu: '\u2764',
+            missyou: '\uD83D\uDE22',
+            hug: '\uD83E\uDD17',
+            hbd: '\uD83C\uDF82',
+            ggwp: '\uD83D\uDC4D',
+            gl: '\uD83D\uDC4D',
+            glhf: '\uD83D\uDC4D',
+            hf: '\uD83D\uDC4D',
+            ez: '\uD83D\uDE0E',
+            noob: '\uD83D\uDE05',
+            afk: '\uD83D\uDE34',
+            omw: '\uD83D\uDE97',
+            nvm: '\uD83D\uDE10',
+            jk: '\uD83D\uDE09',
+            rn: '\u23F0',
+            asap: '\u26A1',
+            facepalm: '\uD83E\uDD26',
+            eyeroll: '\uD83D\uDE44',
+            duh: '\uD83D\uDE44',
+            smart: '\uD83E\uDDE0',
+            brain: '\uD83E\uDDE0',
+            sushi: '\uD83C\uDF63',
+            ramen: '\uD83C\uDF5C',
+            donut: '\uD83C\uDF69',
+            icecream: '\uD83C\uDF68',
+            chocolate: '\uD83C\uDF6B',
+            candy: '\uD83C\uDF6C',
+            popcorn: '\uD83C\uDF7F',
+            watermelon: '\uD83C\uDF49',
+            strawberry: '\uD83C\uDF53',
+            avocado: '\uD83E\uDD51',
+            bacon: '\uD83E\uDD53',
+            egg: '\uD83E\uDD5A',
+            bunny: '\uD83D\uDC30',
+            wolf: '\uD83D\uDC3A',
+            fox: '\uD83E\uDD8A',
+            frog: '\uD83D\uDC38',
+            butterfly: '\uD83E\uDD8B',
+            bee: '\uD83D\uDC1D',
+            whale: '\uD83D\uDC0B',
+            diamond: '\uD83D\uDC8E',
+            gem: '\uD83D\uDC8E',
+            trophy: '\uD83C\uDFC6',
+            medal: '\uD83C\uDFC6',
+            target: '\uD83C\uDFAF',
+            bomb: '\uD83D\uDCA3',
+            boom: '\uD83D\uDCA5',
+            zap: '\u26A1',
+            bulb: '\uD83D\uDCA1',
+            idea: '\uD83D\uDCA1',
+            check: '\u2705',
+            cross: '\u274C',
+            home: '\uD83C\uDFE0',
+            work: '\uD83D\uDCBC',
+            school: '\uD83C\uDFEB',
+            dance: '\uD83D\uDC83',
+            gym: '\uD83D\uDCAA',
+            swim: '\uD83C\uDFCA',
+            soccer: '\u26BD',
+            basketball: '\uD83C\uDFC0',
+            football: '\uD83C\uDFC8',
+            vacation: '\uD83C\uDFD6',
+            travel: '\u2708',
+            sunset: '\uD83C\uDF05',
+            storm: '\u26C8',
+            lightning: '\u26A1',
+            dick: '\uD83C\uDF46',
+            cock: '\uD83C\uDF46',
+            penis: '\uD83C\uDF46',
+            eggplant: '\uD83C\uDF46',
+            ass: '\uD83C\uDF51',
+            booty: '\uD83C\uDF51',
+            butt: '\uD83C\uDF51',
+            peach: '\uD83C\uDF51',
+            thicc: '\uD83C\uDF51',
+            thick: '\uD83C\uDF51',
+            cum: '\uD83D\uDCA6',
+            wet: '\uD83D\uDCA6',
+            drip: '\uD83D\uDCA6',
+            squirt: '\uD83D\uDCA6',
+            horny: '\uD83D\uDE0F',
+            sexy: '\uD83D\uDE0D',
+            naughty: '\uD83D\uDE08',
+            nsfw: '\uD83D\uDD1E',
+            nude: '\uD83D\uDE48',
+            spicy: '\uD83C\uDF36',
+            tongue: '\uD83D\uDC45',
+            lick: '\uD83D\uDC45',
+            cherries: '\uD83C\uDF52',
+            lips: '\uD83D\uDC8B',
+            strip: '\uD83D\uDC83',
+            bedroom: '\uD83D\uDECF',
+            flex: '\uD83D\uDCAA',
+            roast: '\uD83D\uDD25',
+            valid: '\u2705',
+            periodt: '\uD83D\uDC85',
+            simp: '\uD83E\uDD7A',
+            stan: '\u2764',
+            ship: '\uD83D\uDEA2',
+            glow: '\u2728',
+            glowup: '\u2728',
+            ghosted: '\uD83D\uDC7B',
+            blocked: '\uD83D\uDEAB',
+            mute: '\uD83D\uDD07',
+            dm: '\uD83D\uDCE9',
+            pic: '\uD83D\uDCF7',
+            selfie: '\uD83E\uDD33',
+            rage: '\uD83D\uDE24',
+            triggered: '\uD83D\uDE24',
+            trash: '\uD83D\uDDD1',
+            clown: '\uD83E\uDD21',
+            bozo: '\uD83E\uDD21',
+            ratio: '\uD83D\uDCC9',
+            dub: '\uD83C\uDFC6',
+            snipe: '\uD83C\uDFAF',
+            stonks: '\uD83D\uDCC8',
+            broke: '\uD83D\uDCB8',
+            shop: '\uD83D\uDED2',
+            nails: '\uD83D\uDC85',
+            makeup: '\uD83D\uDC84',
+            dress: '\uD83D\uDC57',
+            shoes: '\uD83D\uDC60',
+            ring: '\uD83D\uDC8D',
+            wedding: '\uD83D\uDC92',
+            baby: '\uD83D\uDC76',
+            pasta: '\uD83C\uDF5D',
+            noodles: '\uD83C\uDF5C',
+            hotdog: '\uD83C\uDF2D',
+            sandwich: '\uD83E\uDD6A',
+            milk: '\uD83E\uDD5B',
+            champagne: '\uD83C\uDF7E',
+            whiskey: '\uD83E\uDD43',
+            cocktail: '\uD83C\uDF79',
+            smoke: '\uD83D\uDCA8',
+            drunk: '\uD83E\uDD74',
+            wasted: '\uD83E\uDD74',
+            hangover: '\uD83E\uDD15',
+            pill: '\uD83D\uDC8A',
+            yoga: '\uD83E\uDDD8',
+            bike: '\uD83D\uDEB4',
+            train: '\uD83D\uDE86',
+            bus: '\uD83D\uDE8C',
+            taxi: '\uD83D\uDE95',
+            rocket: '\uD83D\uDE80',
+            ufo: '\uD83D\uDEF8',
+            knife: '\uD83D\uDD2A',
+            sword: '\u2694',
+            wizard: '\uD83E\uDDD9',
+            vampire: '\uD83E\uDDDB',
+            zombie: '\uD83E\uDDDF',
+            pumpkin: '\uD83C\uDF83',
+            firework: '\uD83C\uDF86',
+            balloon: '\uD83C\uDF88',
+            confetti: '\uD83C\uDF8A',
+            first: '\uD83E\uDD47',
+            second: '\uD83E\uDD48',
+            third: '\uD83E\uDD49',
+            dice: '\uD83C\uDFB2',
+            poker: '\uD83C\uDCCF',
+            guitar: '\uD83C\uDFB8',
+            mic: '\uD83C\uDFA4',
+            headphone: '\uD83C\uDFA7',
+            movie: '\uD83C\uDFAC',
+            tv: '\uD83D\uDCFA',
+            dream: '\uD83D\uDCAD',
+            nightmare: '\uD83D\uDE31',
+            scream: '\uD83D\uDE31',
+            mindblown: '\uD83E\uDD2F',
+            sneeze: '\uD83E\uDD27',
+            cough: '\uD83D\uDE37',
+            bandaid: '\uD83E\uDE79',
+            fix: '\uD83D\uDD27',
+            handshake: '\uD83E\uDD1D',
+            fistbump: '\uD83D\uDC4A',
+            peace: '\u270C',
+            luck: '\uD83C\uDF40',
+            crystal: '\uD83D\uDD2E',
+            magic: '\uD83E\uDE84',
+            ':3': '\uD83D\uDE0A',
+            '^_^': '\uD83D\uDE0A',
+            xd: '\uD83D\uDE02',
+            ':*': '\uD83D\uDE18',
+            'B)': '\uD83D\uDE0E',
+            '8)': '\uD83D\uDE0E',
+            ':@': '\uD83D\uDE21',
+            '>:(': '\uD83D\uDE20',
+            T_T: '\uD83D\uDE22',
+            '-_-': '\uD83D\uDE11',
+            'o.o': '\uD83D\uDE33',
+            '^^': '\uD83D\uDE0A',
             '<3': '\u2764',
             '</3': '\uD83D\uDC94',
             ':)': '\uD83D\uDE0A',
@@ -457,9 +695,42 @@
             });
         }
 
+        function isTabKey(evt) {
+            if (!evt) {
+                return false;
+            }
+            var key = evt.keyCode || evt.which;
+            return key === 9;
+        }
+
+        function cancelTab(evt) {
+            if (evt.preventDefault) {
+                evt.preventDefault();
+            }
+            evt.returnValue = false;
+            if (evt.stopPropagation) {
+                evt.stopPropagation();
+            }
+        }
+
+        function tryAcceptTab(evt) {
+            if (!isTabKey(evt) || !getEnabled()) {
+                return false;
+            }
+            if (!active) {
+                refresh();
+            }
+            if (!active) {
+                return false;
+            }
+            cancelTab(evt);
+            applySuggestion();
+            return true;
+        }
+
         function onInputKeyup(evt) {
             evt = evt || window.event;
-            if (evt && (evt.keyCode === 9 || evt.keyCode === 27)) {
+            if (evt && (isTabKey(evt) || evt.keyCode === 27)) {
                 return;
             }
             refresh();
@@ -467,15 +738,18 @@
 
         function onInputKeydown(evt) {
             evt = evt || window.event;
-            if (evt && evt.keyCode === 9 && active && getEnabled()) {
-                if (evt.preventDefault) {
-                    evt.preventDefault();
-                }
-                applySuggestion();
+            if (tryAcceptTab(evt)) {
                 return false;
             }
             if (evt && evt.keyCode === 27) {
                 hideBar();
+            }
+        }
+
+        function onInputKeypress(evt) {
+            evt = evt || window.event;
+            if (tryAcceptTab(evt)) {
+                return false;
             }
         }
 
@@ -496,12 +770,14 @@
 
         if (input.addEventListener) {
             input.addEventListener('keyup', onInputKeyup, false);
-            input.addEventListener('keydown', onInputKeydown, false);
+            input.addEventListener('keydown', onInputKeydown, true);
+            input.addEventListener('keypress', onInputKeypress, true);
             input.addEventListener('blur', onInputBlur, false);
             input.addEventListener('focus', onInputFocus, false);
         } else {
             input.onkeyup = onInputKeyup;
             input.onkeydown = onInputKeydown;
+            input.onkeypress = onInputKeypress;
             input.onblur = onInputBlur;
             input.onfocus = onInputFocus;
         }
