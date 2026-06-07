@@ -20,8 +20,12 @@ jobs:
       - name: Build installer
         shell: pwsh
         run: ./build_installer.ps1
+      - name: Write release notes from CHANGELOG
+        shell: pwsh
+        run: |
+          python scripts/extract_changelog.py CHANGELOG.md "${{ github.ref_name }}" > release_notes.md
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/IMVU-Emoji-Installer.exe
-          generate_release_notes: true
+          body_path: release_notes.md

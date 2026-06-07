@@ -1,37 +1,11 @@
 """Unified CLI for IMVU Classic Fix Toolkit."""
 
 import argparse
-import os
-import runpy
-import sys
 
 from imvu_toolkit import __version__
+from imvu_toolkit.patches.dpi.registry import DPI_SCRIPTS, run_dpi_patch
 from imvu_toolkit.patches.emoji.patch import main as emoji_main
-from imvu_toolkit.paths import project_root
-
-DPI_SCRIPTS = {
-    "clean-layout": "patch_imvu_clean_dpi_layout.py",
-    "dialog-scaling": "patch_imvu_dialog_scaling.py",
-    "overlay-click": "patch_imvu_overlay_click_remap.py",
-    "room-hitboxes": "patch_imvu_room_overlay_hitboxes.py",
-    "white-line": "patch_imvu_white_line.py",
-}
-
-
-def run_dpi_patch(name, argv):
-    script_name = DPI_SCRIPTS.get(name)
-    if not script_name:
-        raise SystemExit("Unknown DPI patch: %s" % name)
-    script_path = os.path.join(project_root(), "patches", "dpi", script_name)
-    if not os.path.isfile(script_path):
-        raise SystemExit("Patch script not found: %s" % script_path)
-    saved_argv = sys.argv
-    try:
-        sys.argv = [script_path] + list(argv)
-        runpy.run_path(script_path, run_name="__main__")
-    finally:
-        sys.argv = saved_argv
-    return 0
+from imvu_toolkit.tools.runner import TOOL_SCRIPTS, run_tool
 
 
 def build_parser():
@@ -59,12 +33,23 @@ def build_parser():
     emoji_restore.add_argument("--force", action="store_true")
     emoji_restore.add_argument("--no-close-imvu", action="store_true")
 
+    emoji_gen = emoji_sub.add_parser(
+        "generate-list", help="Regenerate emojiList.js from Unicode emoji-test.txt"
+    )
+    emoji_gen.add_argument("extra", nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
+
     dpi = sub.add_parser("dpi", help="DPI and layout patches (advanced)")
     dpi_sub = dpi.add_subparsers(dest="dpi_patch", required=True)
     for patch_name in DPI_SCRIPTS:
-        p = dpi_sub.add_parser(
-            patch_name, help="Run %s patch (passes through script flags)" % patch_name
-        )
+        help_text = "Run %s patch (passes through script flags)" % patch_name
+        p = dpi_sub.add_parser(patch_name, help=help_text)
+        p.add_argument("extra", nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
+
+    tools = sub.add_parser("tools", help="Utility scripts (scaling, probes, catalog)")
+    tools_sub = tools.add_subparsers(dest="tool", required=True)
+    for tool_name in TOOL_SCRIPTS:
+        help_text = "Run %s (passes through script flags)" % tool_name
+        p = tools_sub.add_parser(tool_name, help=help_text)
         p.add_argument("extra", nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
 
     return parser
@@ -87,18 +72,27 @@ def emoji_args_from_namespace(ns, restore=False):
     return argv
 
 
+def _remainder(ns):
+    extra = list(getattr(ns, "extra", []) or [])
+    if extra and extra[0] == "--":
+        extra = extra[1:]
+    return extra
+
+
 def main(argv=None):
     parser = build_parser()
     ns = parser.parse_args(argv)
 
     if ns.command == "emoji":
+        if ns.emoji_action == "generate-list":
+            return run_tool("generate-emoji-list", _remainder(ns))
         return emoji_main(emoji_args_from_namespace(ns, restore=(ns.emoji_action == "restore")))
 
     if ns.command == "dpi":
-        extra = list(getattr(ns, "extra", []) or [])
-        if extra and extra[0] == "--":
-            extra = extra[1:]
-        return run_dpi_patch(ns.dpi_patch, extra)
+        return run_dpi_patch(ns.dpi_patch, _remainder(ns))
+
+    if ns.command == "tools":
+        return run_tool(ns.tool, _remainder(ns))
 
     parser.error("Unknown command")
     return 1

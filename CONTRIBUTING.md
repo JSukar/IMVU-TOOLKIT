@@ -19,6 +19,7 @@ pytest
 | `patches/dpi/` | Optional DPI/layout patch scripts |
 | `scripts/` | Probes, emoji catalog generator, scaling helper |
 | `emoji_assets/js/` | Injected chat picker and Twemoji scripts |
+| `docs/` | Architecture, DPI runbook, compatibility, FAQ |
 | `tests/` | Pytest suite (no IMVU install required) |
 
 Root-level `patch_imvu_*.py` files are thin wrappers for backward compatibility.
@@ -28,6 +29,8 @@ Root-level `patch_imvu_*.py` files are thin wrappers for backward compatibility.
 ```powershell
 python -m imvu_toolkit emoji install
 python -m imvu_toolkit emoji restore
+python -m imvu_toolkit emoji generate-list
+python -m imvu_toolkit tools scale-window --watch
 python -m imvu_toolkit dpi clean-layout --restore
 ```
 
@@ -47,4 +50,4 @@ python -m imvu_toolkit dpi clean-layout --restore
 
 ## Releases
 
-Tag with semver (`v1.0.1`). Pushing a tag triggers the release workflow, which builds `IMVU-Emoji-Installer.exe` on Windows and attaches it to the GitHub Release.
+Tag with semver (`v1.0.2`). Pushing a tag triggers the release workflow, which builds `IMVU-Emoji-Installer.exe` on Windows and publishes release notes from `CHANGELOG.md`.

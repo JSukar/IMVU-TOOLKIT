@@ -57,8 +57,11 @@ def rewrite_zip(source_path, backup_prefix, skip_names, write_entries):
         raise
 
 
-def rewrite_jar(source_path, backup_prefix, transform_entry):
-    """Rewrite jar entries via transform_entry(name, data) -> new data or None to keep."""
+def rewrite_jar(source_path, backup_prefix, transform_entry, inject_entries=None):
+    """Rewrite jar entries via transform_entry(name, data) -> new data or None to keep.
+
+    inject_entries are always written (e.g. new files not present in the source jar).
+    """
     backup = "%s%s%s" % (source_path, backup_prefix, time.strftime("%Y%m%d-%H%M%S"))
     shutil.copy2(source_path, backup)
 
@@ -69,7 +72,7 @@ def rewrite_jar(source_path, backup_prefix, transform_entry):
     )
     os.close(fd)
 
-    overrides = {}
+    overrides = dict(inject_entries or {})
     try:
         with zipfile.ZipFile(source_path, "r") as zin:
             for info in zin.infolist():

@@ -18,8 +18,10 @@ def pause_if_needed():
 
 
 def print_banner(restore):
+    from imvu_toolkit import __version__
+
     print("=" * 54)
-    print("  IMVU Emoji Patch Installer")
+    print("  IMVU Emoji Patch Installer  v%s" % __version__)
     print("  %s" % REPO_URL)
     print("=" * 54)
     if restore:
@@ -32,11 +34,13 @@ def print_banner(restore):
 
 def main():
     restore = "--restore" in sys.argv
-    print_banner(restore)
 
     root = os.path.dirname(os.path.abspath(__file__))
-    if root not in sys.path:
-        sys.path.insert(0, os.path.join(root, "src"))
+    src = os.path.join(root, "src")
+    if src not in sys.path:
+        sys.path.insert(0, src)
+
+    print_banner(restore)
 
     from imvu_toolkit.patches.emoji.patch import main as patch_main
 

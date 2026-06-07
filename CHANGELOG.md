@@ -5,6 +5,30 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.0.2] - 2026-06-03
+
+### Added
+
+- CI status badge, SmartScreen / FAQ docs, split documentation (`docs/architecture.md`, `docs/dpi-patches.md`, `docs/compatibility.md`, `docs/FAQ.md`)
+- Jar patch integration test (apply + restore round-trip)
+- Dependabot for GitHub Actions and pip
+- CLI: `emoji generate-list`, `tools scale-window|dpi-probe|…`
+- DPI patch registry (`imvu_toolkit.patches.dpi`) and tools runner
+- Release notes extracted from CHANGELOG on tag push
+- Enhanced bug report template (IMVU path, toolkit version, diagnostics)
+
+### Fixed
+
+- Jar rewrite injects new `js/emoji*.js` files when absent from the source jar
+
+### Changed
+
+- README trimmed; DPI content moved to `docs/dpi-patches.md`
+- Installer banner shows version (`v1.0.2`)
+- Expanded `.gitignore` for pytest/ruff/egg-info caches
+
 ## [1.0.1] - 2026-06-03
 
 ### Added
@@ -29,16 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gear settings and about panel in picker header
 - `IMVU-Emoji-Installer.exe` Windows installer (PyInstaller bundle)
 - Auto-close IMVU before patching (overridable with `--no-close-imvu`)
-- Unified CLI: `python -m imvu_toolkit emoji install|restore` and `dpi` subcommands
-- Pytest coverage for emoji transform and zip patch logic
-- GitHub Actions CI (tests + Windows release build on tag)
-- Pre-commit hooks with Ruff
 
-### Changed
-
-- Refactored emoji patch into `src/imvu_toolkit/` package
-- Moved DPI patch scripts to `patches/dpi/` (root wrappers preserved)
-- Moved utility scripts to `scripts/` (root wrappers preserved)
-
+[1.0.2]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.2
 [1.0.1]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.1
 [1.0.0]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.0

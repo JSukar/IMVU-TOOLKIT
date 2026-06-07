@@ -5,12 +5,35 @@ labels: ["bug"]
 body:
   - type: markdown
     attributes:
-      value: Thanks for reporting. Include steps to reproduce and whether restore was tried.
+      value: |
+        Thanks for reporting. See [FAQ](../docs/FAQ.md) first.
+        Include steps to reproduce and whether `--restore` was tried.
+  - type: input
+    id: toolkit-version
+    attributes:
+      label: Toolkit version
+      placeholder: e.g. 1.0.2 — from `python -m imvu_toolkit --version` or installer banner
+    validations:
+      required: true
   - type: input
     id: imvu-version
     attributes:
       label: IMVU Classic version (if known)
-      placeholder: e.g. build date or client version from About
+      placeholder: e.g. build date or About dialog version
+  - type: input
+    id: imvu-dir
+    attributes:
+      label: IMVU install path
+      placeholder: e.g. C:\Users\You\AppData\Roaming\IMVUClient
+  - type: dropdown
+    id: common-py
+    attributes:
+      label: In library.zip, do you have im/common.pyo?
+      options:
+        - Unknown
+        - "Yes — .pyo only"
+        - "Yes — both .py and .pyo"
+        - "No — .py source only"
   - type: dropdown
     id: patch
     attributes:
@@ -22,6 +45,7 @@ body:
         - Room overlay hitboxes
         - Overlay click remap
         - White line
+        - fix_imvu_scaling.py
         - Other
   - type: textarea
     id: steps
@@ -46,7 +70,7 @@ body:
     id: restore
     attributes:
       label: Did --restore help?
-      placeholder: e.g. python patch_imvu_emoji.py --restore
+      placeholder: e.g. python patch_imvu_emoji.py --restore — result?
   - type: textarea
     id: logs
     attributes:

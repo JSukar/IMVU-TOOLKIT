@@ -61,7 +61,7 @@ def patch_content_jar(jar_path):
             return patch_text_file(data.decode("utf-8"), name).encode("utf-8")
         return None
 
-    return rewrite_jar(jar_path, C.BACKUP_PREFIX, transform_entry)
+    return rewrite_jar(jar_path, C.BACKUP_PREFIX, transform_entry, inject_entries=overrides)
 
 
 def patch_library(library, patched_source):
