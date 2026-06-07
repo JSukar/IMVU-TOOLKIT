@@ -142,7 +142,10 @@ class InstallerApp:
 
         hint = tk.Label(
             outer,
-            text="If IMVU is open, close it when prompted. The installer waits, patches, then relaunches IMVU.",
+            text=(
+                "If IMVU is open, close it when prompted. "
+                "The installer waits, patches, then relaunches IMVU."
+            ),
             bg=BG,
             fg=MUTED,
             font=("Segoe UI", 9),
@@ -245,7 +248,10 @@ class InstallerApp:
             return
         if restore and not messagebox.askyesno(
             "Restore original files?",
-            "This removes the emoji patch and restores library.zip / imvuContent.jar backups.\n\nContinue?",
+            (
+                "This removes the emoji patch and restores "
+                "library.zip / imvuContent.jar backups.\n\nContinue?"
+            ),
             icon="warning",
         ):
             return
