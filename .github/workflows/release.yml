@@ -25,7 +25,7 @@ jobs:
         run: |
           python scripts/extract_changelog.py CHANGELOG.md "${{ github.ref_name }}" > release_notes.md
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/IMVU-Emoji-Installer.exe
           body_path: release_notes.md
