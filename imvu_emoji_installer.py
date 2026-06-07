@@ -7,18 +7,18 @@ import sys
 REPO_URL = "https://github.com/JSukar/IMVU-TOOLKIT"
 
 
-def pause_if_needed():
-    if os.name != "nt":
-        return
-    try:
-        if sys.stdin is None or not sys.stdin.isatty():
-            input("\nPress Enter to exit...")
-    except (EOFError, KeyboardInterrupt, OSError):
-        pass
+def _setup_path() -> None:
+    root = os.path.dirname(os.path.abspath(__file__))
+    src = os.path.join(root, "src")
+    if src not in sys.path:
+        sys.path.insert(0, src)
 
 
-def print_banner(restore):
+def _cli_main() -> int:
+    restore = "--restore" in sys.argv
+
     from imvu_toolkit import __version__
+    from imvu_toolkit.installer.runner import run_patch
 
     print("=" * 54)
     print("  IMVU Emoji Patch Installer  v%s" % __version__)
@@ -28,42 +28,39 @@ def print_banner(restore):
         print("\nMode: RESTORE (undo emoji patch)")
     else:
         print("\nMode: INSTALL")
-        print("Close IMVU before continuing (this build does not force-kill IMVU).")
+        print("If IMVU is open, close it when prompted — the installer waits, then relaunches IMVU.")
     print("")
 
-
-def main():
-    restore = "--restore" in sys.argv
-
-    root = os.path.dirname(os.path.abspath(__file__))
-    src = os.path.join(root, "src")
-    if src not in sys.path:
-        sys.path.insert(0, src)
-
-    print_banner(restore)
-
-    from imvu_toolkit.patches.emoji.patch import main as patch_main
-
-    argv = ["--no-close-imvu"]
-    if restore:
-        argv.append("--restore")
-
-    code = patch_main(argv)
+    code = run_patch(restore=restore)
 
     print("")
     if code == 0:
         if restore:
-            print("Restore complete. Restart IMVU.")
+            print("Restore complete.")
         else:
-            print("Install complete. Restart IMVU and click the smiley button beside Send.")
+            print("Install complete. Click the smiley button beside Send in chat.")
     elif code == 2:
-        print("Close IMVU manually and run this installer again.")
+        print("IMVU did not close in time. Close it completely and run this installer again.")
         print("Or use install.ps1 if Windows Defender blocks this .exe.")
     else:
         print("Installer failed. Review the messages above.")
 
-    pause_if_needed()
+    if os.name == "nt":
+        try:
+            if sys.stdin is not None and sys.stdin.isatty():
+                input("\nPress Enter to exit...")
+        except (EOFError, KeyboardInterrupt, OSError):
+            pass
     return code
+
+
+def main() -> int:
+    _setup_path()
+    if "--cli" in sys.argv:
+        return _cli_main()
+    from imvu_toolkit.installer.gui import main as gui_main
+
+    return gui_main()
 
 
 if __name__ == "__main__":

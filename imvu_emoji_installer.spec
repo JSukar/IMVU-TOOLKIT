@@ -1,6 +1,6 @@
 # PyInstaller spec for IMVU Emoji Patch Installer (Windows .exe)
 # Build: pyinstaller --clean imvu_emoji_installer.spec
-# Output: dist/IMVU-Emoji-Installer/ (onedir — fewer AV false positives than onefile)
+# Output: dist/IMVU-Emoji-Installer.exe (standalone onefile GUI)
 
 import os
 
@@ -14,6 +14,8 @@ datas = [
         os.path.join(ROOT, "library_decompiled_structured", "im", "common.py"),
         os.path.join("library_decompiled_structured", "im"),
     ),
+    (os.path.join(ROOT, "assets", "imvu-toolkit-logo.png"), os.path.join("assets")),
+    (os.path.join(ROOT, "assets", "imvu-toolkit-logo.ico"), os.path.join("assets")),
 ]
 
 a = Analysis(
@@ -25,10 +27,17 @@ a = Analysis(
         "imvu_toolkit",
         "imvu_toolkit.paths",
         "imvu_toolkit.imvu_process",
+        "imvu_toolkit.installer.gui",
+        "imvu_toolkit.installer.runner",
         "imvu_toolkit.zip_utils",
         "imvu_toolkit.patches.emoji.constants",
         "imvu_toolkit.patches.emoji.transforms",
         "imvu_toolkit.patches.emoji.patch",
+        "tkinter",
+        "_tkinter",
+        "PIL",
+        "PIL.Image",
+        "PIL.ImageTk",
     ],
     hookspath=[],
     hooksconfig={},
@@ -42,14 +51,15 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.datas,
     [],
-    exclude_binaries=True,
     name="IMVU-Emoji-Installer",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=False,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
@@ -57,13 +67,4 @@ exe = EXE(
     entitlements_file=None,
     icon=ICON if os.path.exists(ICON) else None,
     version=VERSION_INFO if os.path.exists(VERSION_INFO) else None,
-)
-
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-    strip=False,
-    upx=False,
-    name="IMVU-Emoji-Installer",
 )

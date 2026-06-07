@@ -1,4 +1,4 @@
-# Build IMVU-Emoji-Installer (onedir folder + zip for releases)
+# Build IMVU-Emoji-Installer (standalone onefile GUI .exe)
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
@@ -15,27 +15,21 @@ if ((Test-Path $iconPng) -and -not (Test-Path $iconIco)) {
 Write-Host "Generating Windows version metadata..."
 python scripts/generate_version_info.py
 
-Write-Host "Building IMVU-Emoji-Installer (onedir)..."
+Write-Host "Building IMVU-Emoji-Installer.exe (onefile)..."
 python -m PyInstaller --clean imvu_emoji_installer.spec
 
-$dir = Join-Path $PSScriptRoot "dist\IMVU-Emoji-Installer"
-$exe = Join-Path $dir "IMVU-Emoji-Installer.exe"
-$zip = Join-Path $PSScriptRoot "dist\IMVU-Emoji-Installer.zip"
+$exe = Join-Path $PSScriptRoot "dist\IMVU-Emoji-Installer.exe"
 
 if (-not (Test-Path $exe)) {
     Write-Error "Build failed - $exe not found."
 }
 
-if (Test-Path $zip) { Remove-Item $zip -Force }
-Compress-Archive -Path $dir -DestinationPath $zip -Force
-
 Write-Host ""
 Write-Host "Success:"
-Write-Host "  Folder: $dir"
-Write-Host "  Zip:    $zip"
+Write-Host "  $exe"
 Write-Host ""
 Write-Host "Usage:"
-Write-Host "  Run dist\IMVU-Emoji-Installer\IMVU-Emoji-Installer.exe"
-Write-Host "  Or extract IMVU-Emoji-Installer.zip and run the .exe inside"
-Write-Host "  If Defender blocks the .exe, use:  .\install.ps1"
-Write-Host "  Restore: IMVU-Emoji-Installer.exe --restore"
+Write-Host "  Run dist\IMVU-Emoji-Installer.exe"
+Write-Host "  If Defender blocks the .exe, use:  .\install.ps1  or  .\install_gui.ps1"
+Write-Host "  Restore (GUI): IMVU-Emoji-Installer.exe --restore"
+Write-Host "  Restore (CLI): IMVU-Emoji-Installer.exe --cli --restore"

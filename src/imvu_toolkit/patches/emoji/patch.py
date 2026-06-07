@@ -4,7 +4,7 @@ import argparse
 import os
 import sys
 
-from imvu_toolkit.imvu_process import ensure_imvu_closed
+from imvu_toolkit.imvu_process import ensure_imvu_closed, start_imvu
 from imvu_toolkit.patches.emoji import constants as C
 from imvu_toolkit.patches.emoji.transforms import (
     build_common_source,
@@ -31,6 +31,11 @@ def parse_args(argv=None):
         "--no-close-imvu",
         action="store_true",
         help="Do not automatically close IMVU before patching.",
+    )
+    parser.add_argument(
+        "--relaunch-imvu",
+        action="store_true",
+        help="Start IMVUClient.exe after a successful patch or restore.",
     )
     return parser.parse_args(argv)
 
@@ -81,6 +86,19 @@ def restore_jar(jar_path):
     return restore_from_backup(jar_path, C.BACKUP_PREFIX)
 
 
+def maybe_relaunch_imvu(imvu_dir, relaunch):
+    if not relaunch:
+        print("Restart IMVU to load the changes.")
+        return 0
+    ok, err = start_imvu(imvu_dir)
+    if ok:
+        print("IMVU restarted.")
+        return 0
+    print("Warning: %s" % err, file=sys.stderr)
+    print("Restart IMVU manually to load the changes.")
+    return 0
+
+
 def main(argv=None):
     args = parse_args(argv)
     library = library_path(args)
@@ -114,7 +132,7 @@ def main(argv=None):
         jar_backup = restore_jar(jar_path)
         print("Restored %s from %s" % (library, lib_backup))
         print("Restored %s from %s" % (jar_path, jar_backup))
-        return 0
+        return maybe_relaunch_imvu(imvu_dir, args.relaunch_imvu)
 
     common_source = build_common_source()
     lib_backup = patch_library(library, common_source)
@@ -123,6 +141,5 @@ def main(argv=None):
     print("Library backup: %s" % lib_backup)
     print("Patched Twemoji chat rendering + emoji picker in %s" % jar_path)
     print("Content backup: %s" % jar_backup)
-    print("Restart IMVU to load the changes.")
     print("Note: emoji images load from jsDelivr (internet required in chat).")
-    return 0
+    return maybe_relaunch_imvu(imvu_dir, args.relaunch_imvu)

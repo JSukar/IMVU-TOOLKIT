@@ -25,6 +25,7 @@ def build_parser():
     emoji_install.add_argument("--content-jar")
     emoji_install.add_argument("--force", action="store_true")
     emoji_install.add_argument("--no-close-imvu", action="store_true")
+    emoji_install.add_argument("--relaunch-imvu", action="store_true")
 
     emoji_restore = emoji_sub.add_parser("restore", help="Restore emoji patch backups")
     emoji_restore.add_argument("--imvu-dir", default=None)
@@ -32,6 +33,7 @@ def build_parser():
     emoji_restore.add_argument("--content-jar")
     emoji_restore.add_argument("--force", action="store_true")
     emoji_restore.add_argument("--no-close-imvu", action="store_true")
+    emoji_restore.add_argument("--relaunch-imvu", action="store_true")
 
     emoji_gen = emoji_sub.add_parser(
         "generate-list", help="Regenerate emojiList.js from Unicode emoji-test.txt"
@@ -69,6 +71,8 @@ def emoji_args_from_namespace(ns, restore=False):
         argv.append("--force")
     if getattr(ns, "no_close_imvu", False):
         argv.append("--no-close-imvu")
+    if getattr(ns, "relaunch_imvu", False):
+        argv.append("--relaunch-imvu")
     return argv
 
 

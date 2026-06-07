@@ -18,6 +18,8 @@ def extract_version_section(changelog_text, version):
 def main():
     if len(sys.argv) != 3:
         raise SystemExit("Usage: extract_changelog.py <changelog.md> <version>")
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     changelog_path = Path(sys.argv[1])
     version = sys.argv[2]
     text = changelog_path.read_text(encoding="utf-8")

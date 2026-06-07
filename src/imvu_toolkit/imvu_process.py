@@ -1,8 +1,7 @@
-import ctypes
 import os
 import subprocess
+import sys
 import time
-from ctypes import wintypes
 
 
 def imvu_client_processes(imvu_dir):
@@ -40,44 +39,43 @@ def imvu_is_running(imvu_dir):
     return bool(imvu_client_processes(imvu_dir))
 
 
-def _post_close_to_process_windows(pid):
-    user32 = ctypes.windll.user32
-    WM_CLOSE = 0x0010
-
-    def enum_callback(hwnd, _lparam):
-        window_pid = wintypes.DWORD()
-        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(window_pid))
-        if window_pid.value == pid and user32.IsWindowVisible(hwnd):
-            user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
-        return True
-
-    enum_proc = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)(enum_callback)
-    user32.EnumWindows(enum_proc, 0)
+def imvu_exe_path(imvu_dir):
+    return os.path.join(os.path.abspath(imvu_dir), "IMVUClient.exe")
 
 
-def close_imvu(imvu_dir, timeout=20):
-    processes = imvu_client_processes(imvu_dir)
-    if not processes:
+def start_imvu(imvu_dir):
+    exe = imvu_exe_path(imvu_dir)
+    if not os.path.isfile(exe):
+        return False, "IMVUClient.exe not found: %s" % exe
+    subprocess.Popen([exe], cwd=os.path.dirname(exe))
+    return True, None
+
+
+def wait_for_imvu_closed(imvu_dir, poll_interval=1.0, timeout=600):
+    if not imvu_is_running(imvu_dir):
         return True, None
 
-    for pid, _path in processes:
-        print("Closing IMVUClient (PID %d)..." % pid)
-        _post_close_to_process_windows(pid)
+    print("")
+    print("IMVU is still running.")
+    print("Please close IMVU completely, then leave this window open.")
+    print("The installer will continue automatically once IMVU has exited.")
+    print("")
 
-    deadline = time.time() + timeout
-    while time.time() < deadline:
+    deadline = time.time() + timeout if timeout else None
+    dots = 0
+    while True:
         if not imvu_is_running(imvu_dir):
+            print("\nIMVU closed.")
             return True, None
-        time.sleep(0.5)
+        if deadline and time.time() >= deadline:
+            return False, "Timed out after %d seconds waiting for IMVU to close." % timeout
+        time.sleep(poll_interval)
+        dots = (dots + 1) % 4
+        message = "  Waiting for IMVU to close" + ("." * dots) + (" " * (3 - dots))
+        sys.stdout.write("\r%s" % message)
+        sys.stdout.flush()
 
-    remaining = imvu_client_processes(imvu_dir)
-    if not remaining:
-        return True, None
-
-    for pid, _path in remaining:
-        print("IMVUClient (PID %d) did not exit — close it manually." % pid)
-
-    return False, "IMVUClient is still running. Close it manually and try again."
+    return False, "IMVUClient is still running."
 
 
 def ensure_imvu_closed(imvu_dir, force, no_close_imvu):
@@ -85,14 +83,10 @@ def ensure_imvu_closed(imvu_dir, force, no_close_imvu):
         return True, None
 
     if force:
+        print("Warning: IMVU is running; --force continues anyway.", file=sys.stderr)
         return True, None
 
     if no_close_imvu:
         return False, "IMVUClient is running. Close IMVU manually and run again."
 
-    print("IMVU is running. Requesting a graceful close...")
-    ok, err = close_imvu(imvu_dir)
-    if ok:
-        print("IMVU closed.")
-        return True, None
-    return False, err
+    return wait_for_imvu_closed(imvu_dir)

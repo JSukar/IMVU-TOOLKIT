@@ -147,7 +147,7 @@ PICKER_CSS = """
     display: block;
     width: auto;
     height: 28px;
-    margin-right: 62px;
+    margin-right: 92px;
     -moz-box-sizing: border-box;
     padding: 5px 8px;
     border: 1px solid #444;
@@ -163,7 +163,7 @@ PICKER_CSS = """
     position: absolute;
     right: 8px;
     top: 8px;
-    width: 58px;
+    width: 88px;
     height: 28px;
     line-height: 28px;
     text-align: right;
@@ -171,7 +171,8 @@ PICKER_CSS = """
     z-index: 5;
 }
 .imvu-emoji-picker-gear,
-.imvu-emoji-picker-info {
+.imvu-emoji-picker-info,
+.imvu-emoji-picker-fav-header {
     display: inline-block;
     width: 26px;
     height: 26px;
@@ -193,6 +194,18 @@ PICKER_CSS = """
     font-weight: bold;
     font-size: 13px;
     line-height: 26px;
+}
+.imvu-emoji-picker-fav-header {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 26px;
+    padding-top: 1px;
+    color: #bbb;
+}
+.imvu-emoji-picker-fav-header.active,
+.imvu-emoji-picker-fav-header:hover {
+    color: #f5c542;
+    background: #333;
 }
 .imvu-emoji-picker-gear {
     font-family: Arial, sans-serif;
@@ -313,9 +326,16 @@ PICKER_CSS = """
     padding: 4px;
     line-height: 0;
 }
-.imvu-emoji-picker-item {
+.imvu-emoji-picker-cell {
+    position: relative;
+    display: inline-block;
     width: 32px;
     height: 32px;
+    vertical-align: top;
+}
+.imvu-emoji-picker-item {
+    width: 28px;
+    height: 28px;
     margin: 0;
     padding: 2px;
     border: 0;
@@ -344,6 +364,27 @@ PICKER_CSS = """
     font-size: 16px;
     text-align: center;
     vertical-align: middle;
+}
+.imvu-emoji-picker-fav-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    line-height: 14px;
+    font-size: 11px;
+    color: #777;
+    background: #1a1a1a;
+    cursor: pointer;
+    text-align: center;
+    z-index: 2;
+}
+.imvu-emoji-picker-fav-toggle.active,
+.imvu-emoji-picker-fav-toggle:hover {
+    color: #f5c542;
 }
 .imvu-emoji-picker-empty {
     color: #888;

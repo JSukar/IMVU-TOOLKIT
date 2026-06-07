@@ -20,7 +20,7 @@ cd IMVU-TOOLKIT
 .\install.ps1
 ```
 
-Close IMVU first. Restore: `.\install.ps1 --restore`
+The installer asks you to close IMVU if it is running, waits until it exits, applies the patch, then relaunches IMVU. Restore: `.\install.ps1 --restore`
 
 Requires Python 3.10+. If you already cloned the repo locally, run `.\install.ps1` from the project folder.
 
@@ -55,7 +55,7 @@ Common reasons AV heuristics flag this installer:
 | --- | --- | --- |
 | Self-extracting single `.exe` | Same packer pattern as some trojans | PyInstaller bundles Python + your patch code |
 | Not code-signed | No publisher reputation | Same as SmartScreen “Unknown publisher” |
-| Closes another process | “Hacktool” / “PUA” heuristics | v1.0.3+ asks you to close IMVU manually (no `taskkill /F`) |
+| Closes another process | “Hacktool” / “PUA” heuristics | User closes IMVU manually; installer waits (no force-kill) |
 | Edits files under `%APPDATA%` | Generic “modifier” behavior | Patches `library.zip` / `imvuContent.jar` only |
 
 **How to verify yourself:** read the [source](https://github.com/JSukar/IMVU-TOOLKIT), match SHA256 to the release, and compare detections before/after each release. Microsoft Defender and other major vendors usually show **undetected** when the build is clean.
@@ -98,6 +98,12 @@ The picker uses a parent-window overlay when allowed. Some room layouts may stil
 ### Shortcuts not working / wrong mode
 
 Open the gear icon → choose **Replace** vs **Keep word, add emoji after**, and **Show** vs **Hide** suggestions. Re-run patch if JS was outdated.
+
+### Do favorites persist after I restart IMVU?
+
+**Yes, on the same PC** — favorites are saved in the browser’s `localStorage` (same storage the emoji image cache uses). They should survive closing and reopening IMVU, and rebooting Windows.
+
+If favorites disappear after a restart, IMVU’s embedded browser may have cleared storage for that profile; re-add them with ☆. Favorites are not synced to other computers or IMVU accounts.
 
 ## DPI
 

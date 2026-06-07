@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "imvu-toolkit"
-version = "1.0.3"
+version = "1.0.4"
 description = "Fix chat emoji and optional DPI scaling for IMVU Classic on Windows"
 readme = "README.md"
 license = { text = "MIT" }
@@ -21,6 +21,7 @@ classifiers = [
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.4"]
 build = ["pyinstaller>=6.0", "pillow>=10.0"]
+gui = ["pillow>=10.0"]
 
 [project.scripts]
 imvu-toolkit = "imvu_toolkit.cli:main"

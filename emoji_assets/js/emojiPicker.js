@@ -14,7 +14,9 @@
     var PICKER_MARKER = 'imvu-emoji-picker-installed';
     var PRELOAD_MARKER = 'imvu-emoji-preload-started';
     var REPO_URL = 'https://github.com/JSukar/IMVU-TOOLKIT';
-    var OVERLAY_STYLE_ID = 'imvu-emoji-picker-overlay-css';
+    var OVERLAY_STYLE_ID = 'imvu-emoji-picker-overlay-css-v4';
+    var FAVORITES_KEY = 'imvu_emoji_favorites';
+    var FAVORITES_CATEGORY = 'favorites';
 
     function getPickerOverlayContext() {
         var overlayWin = window;
@@ -79,14 +81,17 @@
             + '-moz-border-radius:4px;-moz-box-shadow:0 2px 10px rgba(0,0,0,0.5);z-index:999999;overflow:visible}'
             + '.imvu-emoji-picker.hidden{display:none}'
             + '.imvu-emoji-picker-search-wrap{position:relative;padding:8px;border-bottom:1px solid #333;overflow:visible}'
-            + '.imvu-emoji-picker-search{display:block;width:auto;height:28px;margin-right:62px;-moz-box-sizing:border-box;'
+            + '.imvu-emoji-picker-search{display:block;width:auto;height:28px;margin-right:92px;-moz-box-sizing:border-box;'
             + 'padding:5px 8px;border:1px solid #444;background:#111;color:#fff;font-size:12px;line-height:16px}'
             + '.imvu-emoji-picker-search.hint{color:#929292}'
-            + '.imvu-emoji-picker-header-btns{position:absolute;right:8px;top:8px;width:58px;height:28px;'
+            + '.imvu-emoji-picker-header-btns{position:absolute;right:8px;top:8px;width:88px;height:28px;'
             + 'line-height:28px;text-align:right;white-space:nowrap;z-index:5}'
-            + '.imvu-emoji-picker-gear,.imvu-emoji-picker-info{display:inline-block;width:26px;height:26px;margin:0 0 0 4px;'
+            + '.imvu-emoji-picker-gear,.imvu-emoji-picker-info,.imvu-emoji-picker-fav-header{display:inline-block;width:26px;height:26px;margin:0 0 0 4px;'
             + 'padding:0;border:1px solid #444;background:#222;color:#bbb;text-align:center;cursor:pointer;'
             + '-moz-border-radius:13px;vertical-align:middle;overflow:hidden;-moz-user-select:none}'
+            + '.imvu-emoji-picker-fav-header{font-family:Arial,sans-serif;font-size:14px;line-height:26px;'
+            + 'padding-top:1px;color:#bbb}'
+            + '.imvu-emoji-picker-fav-header.active,.imvu-emoji-picker-fav-header:hover{color:#f5c542;background:#333}'
             + '.imvu-emoji-picker-info{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:bold;'
             + 'font-size:13px;line-height:26px}'
             + '.imvu-emoji-picker-gear{font-family:Arial,sans-serif;font-size:14px;line-height:26px;padding-top:1px}'
@@ -114,15 +119,156 @@
             + '.imvu-emoji-picker-grid-wrap{height:240px;min-height:80px;overflow-y:auto;overflow-x:hidden;background:#1a1a1a;'
             + '-moz-border-radius:0 0 4px 4px}'
             + '.imvu-emoji-picker-grid{padding:4px;line-height:0}'
-            + '.imvu-emoji-picker-item{width:32px;height:32px;margin:0;padding:2px;border:0;background:transparent;cursor:pointer;'
+            + '.imvu-emoji-picker-cell{position:relative;display:inline-block;width:32px;height:32px;vertical-align:top}'
+            + '.imvu-emoji-picker-item{width:28px;height:28px;margin:0;padding:2px;border:0;background:transparent;cursor:pointer;'
             + '-moz-border-radius:2px;display:inline-block;vertical-align:top;line-height:0;text-align:center}'
             + '.imvu-emoji-picker-item:hover{background:#333}'
             + '.imvu-emoji-picker-item img{width:28px;height:28px;border:0;vertical-align:middle}'
             + '.imvu-emoji-picker-item-fallback{display:inline-block;width:28px;height:28px;line-height:28px;font-size:16px;'
             + 'text-align:center;vertical-align:middle}'
             + '.imvu-emoji-picker-empty{color:#888;font-size:11px;padding:10px;text-align:center}'
+            + '.imvu-emoji-picker-fav-toggle{position:absolute;right:0;top:0;width:14px;height:14px;margin:0;padding:0;border:0;'
+            + 'line-height:14px;font-size:11px;color:#777;background:#1a1a1a;cursor:pointer;text-align:center;z-index:2}'
+            + '.imvu-emoji-picker-fav-toggle.active,.imvu-emoji-picker-fav-toggle:hover{color:#f5c542}'
         ));
         head.appendChild(style);
+    }
+
+    function getStorageWindows() {
+        var wins = [window];
+        var seen = {};
+        var i;
+        seen[window] = true;
+        try {
+            if (window.parent && window.parent !== window && !seen[window.parent]) {
+                wins.push(window.parent);
+                seen[window.parent] = true;
+            }
+        } catch (e) {
+        }
+        try {
+            if (window.top && window.top !== window && !seen[window.top]) {
+                wins.push(window.top);
+            }
+        } catch (e) {
+        }
+        return wins;
+    }
+
+    var memoryFavoriteHexes = null;
+
+    function syncFavoriteGlobals(hexes) {
+        var wins = getStorageWindows();
+        var i;
+        var copy = hexes.slice(0);
+        memoryFavoriteHexes = copy;
+        for (i = 0; i < wins.length; i += 1) {
+            try {
+                wins[i].__IMVU_EMOJI_FAVORITES = copy;
+            } catch (e) {
+            }
+        }
+    }
+
+    function readFavoriteHexesFromGlobals() {
+        var wins = getStorageWindows();
+        var i;
+        var value;
+        for (i = 0; i < wins.length; i += 1) {
+            try {
+                value = wins[i].__IMVU_EMOJI_FAVORITES;
+                if (value && value.length) {
+                    return value.slice(0);
+                }
+            } catch (e) {
+            }
+        }
+        return null;
+    }
+
+    function readFavoriteHexesFromStorage() {
+        var wins = getStorageWindows();
+        var i;
+        var raw;
+        for (i = 0; i < wins.length; i += 1) {
+            try {
+                if (wins[i].localStorage) {
+                    raw = wins[i].localStorage.getItem(FAVORITES_KEY);
+                    if (raw !== null && raw !== undefined && raw !== '') {
+                        return JSON.parse(raw);
+                    }
+                }
+            } catch (e) {
+            }
+        }
+        return null;
+    }
+
+    function loadFavoriteHexes() {
+        var parsed;
+        if (memoryFavoriteHexes !== null) {
+            return memoryFavoriteHexes.slice(0);
+        }
+        try {
+            parsed = readFavoriteHexesFromGlobals();
+            if (parsed && parsed.length) {
+                syncFavoriteGlobals(parsed);
+                return parsed.slice(0);
+            }
+            parsed = readFavoriteHexesFromStorage();
+            if (parsed !== null && parsed !== undefined) {
+                syncFavoriteGlobals(parsed);
+                return parsed.slice(0);
+            }
+        } catch (e) {
+        }
+        syncFavoriteGlobals([]);
+        return [];
+    }
+
+    function saveFavoriteHexes(hexes) {
+        var wins = getStorageWindows();
+        var i;
+        syncFavoriteGlobals(hexes);
+        for (i = 0; i < wins.length; i += 1) {
+            try {
+                if (wins[i].localStorage) {
+                    wins[i].localStorage.setItem(FAVORITES_KEY, JSON.stringify(hexes));
+                    return;
+                }
+            } catch (e) {
+            }
+        }
+    }
+
+    function indexOfHex(hexes, hex) {
+        var i;
+        for (i = 0; i < hexes.length; i += 1) {
+            if (hexes[i] === hex) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function buildHexEntryMap(categories) {
+        var map = {};
+        var i;
+        var j;
+        var cat;
+        var entry;
+        var hex;
+        for (i = 0; i < categories.length; i += 1) {
+            cat = categories[i];
+            for (j = 0; j < cat.emojis.length; j += 1) {
+                entry = cat.emojis[j];
+                hex = cache.hexFromEmoji(entry.c);
+                if (hex) {
+                    map[hex] = entry;
+                }
+            }
+        }
+        return map;
     }
 
     function emojiHex(entry) {
@@ -177,6 +323,17 @@
         }
         var haystack = (entry.n + ' ' + entry.k + ' ' + entry.c).toLowerCase();
         return haystack.indexOf(query) !== -1;
+    }
+
+    function isSecondaryClick(evt) {
+        evt = evt || window.event;
+        if (typeof evt.button === 'number') {
+            return evt.button === 2;
+        }
+        if (typeof evt.which === 'number') {
+            return evt.which === 3;
+        }
+        return false;
     }
 
     function flattenCategories(categories, query) {
@@ -332,6 +489,9 @@
             if (!pickerApi.isOpen()) {
                 return;
             }
+            if (isSecondaryClick(evt)) {
+                return;
+            }
             var target = evt.target || evt.srcElement;
             if (nodeInPickerTree(target, pickerApi.element, button, null)) {
                 return;
@@ -377,6 +537,9 @@
                 return;
             }
             hex = btn.getAttribute('data-emoji-hex');
+            if (!hex && btn.parentNode && btn.parentNode.getAttribute) {
+                hex = btn.parentNode.getAttribute('data-emoji-hex');
+            }
             if (hex && this.src.indexOf('data:') === 0) {
                 this.src = cache.cdnUrl(hex);
                 return;
@@ -391,18 +554,24 @@
         };
     }
 
-    function emojiButtonHtml(entry) {
+    function emojiCellHtml(entry, isFavorite) {
         var hex = emojiHex(entry);
         cache.persistHex(hex);
-        return '<button type="button" class="imvu-emoji-picker-item" data-emoji="'
-            + entry.c.replace(/"/g, '&quot;')
-            + '" data-emoji-hex="'
+        return '<div class="imvu-emoji-picker-cell" data-emoji-hex="'
             + hex
+            + '"><button type="button" class="imvu-emoji-picker-item" data-emoji="'
+            + entry.c.replace(/"/g, '&quot;')
             + '" title="'
             + entry.n.replace(/"/g, '&quot;')
             + '"><img src="'
             + cache.getSrc(hex)
-            + '" alt="" draggable="false"></button>';
+            + '" alt="" draggable="false"></button><button type="button" class="imvu-emoji-picker-fav-toggle'
+            + (isFavorite ? ' active' : '')
+            + '" title="'
+            + (isFavorite ? 'Remove from favorites' : 'Add to favorites')
+            + '">'
+            + (isFavorite ? '\u2605' : '\u2606')
+            + '</button></div>';
     }
 
     function createPicker(input, trigger, overlay) {
@@ -471,6 +640,12 @@
         info.title = 'About this emoji picker';
         info.appendChild(doc.createTextNode('i'));
 
+        var favHeader = doc.createElement('button');
+        favHeader.type = 'button';
+        favHeader.className = 'imvu-emoji-picker-fav-header';
+        favHeader.title = 'Favorites';
+        favHeader.appendChild(doc.createTextNode('\u2605'));
+
         var about = doc.createElement('div');
         about.className = 'imvu-emoji-picker-about hidden';
         about.innerHTML = 'This was made by J0<br><a href="'
@@ -486,6 +661,7 @@
 
         var headerBtns = doc.createElement('div');
         headerBtns.className = 'imvu-emoji-picker-header-btns';
+        headerBtns.appendChild(favHeader);
         headerBtns.appendChild(info);
         headerBtns.appendChild(gear);
 
@@ -509,10 +685,69 @@
         doc.body.appendChild(picker);
 
         var categories = window.IMVU_EMOJI_CATEGORIES || [];
+        var hexEntryMap = buildHexEntryMap(categories);
+        var favoriteSet = {};
         var activeCategory = categories.length ? categories[0].id : '';
         var open = false;
         var settingsOpen = false;
         var aboutOpen = false;
+
+        function refreshFavoriteSet() {
+            var hexes = loadFavoriteHexes();
+            var next = {};
+            var i;
+            for (i = 0; i < hexes.length; i += 1) {
+                next[hexes[i]] = true;
+            }
+            favoriteSet = next;
+        }
+
+        function isFavoriteHex(hex) {
+            return !!favoriteSet[hex];
+        }
+
+        function toggleFavoriteHex(hex) {
+            var hexes = loadFavoriteHexes();
+            var idx = indexOfHex(hexes, hex);
+            if (idx === -1) {
+                hexes.push(hex);
+            } else {
+                hexes.splice(idx, 1);
+            }
+            saveFavoriteHexes(hexes);
+            refreshFavoriteSet();
+        }
+
+        function updateHeaderFavBtn() {
+            favHeader.className = 'imvu-emoji-picker-fav-header'
+                + (activeCategory === FAVORITES_CATEGORY ? ' active' : '');
+        }
+
+        function showFavoritesTab() {
+            hideAbout();
+            hideSettings();
+            activeCategory = FAVORITES_CATEGORY;
+            search.value = '';
+            renderTabs();
+            renderGrid();
+            updateHeaderFavBtn();
+        }
+
+        function getFavoriteEntries() {
+            var hexes = loadFavoriteHexes();
+            var entries = [];
+            var i;
+            var entry;
+            for (i = 0; i < hexes.length; i += 1) {
+                entry = hexEntryMap[hexes[i]];
+                if (entry) {
+                    entries.push(entry);
+                }
+            }
+            return entries;
+        }
+
+        refreshFavoriteSet();
 
         function hideAbout() {
             about.className = 'imvu-emoji-picker-about hidden';
@@ -577,6 +812,7 @@
                 );
             }
             tabs.innerHTML = html.join('');
+            updateHeaderFavBtn();
         }
 
         function renderGrid() {
@@ -594,7 +830,13 @@
             if (query) {
                 entries = flattenCategories(categories, query);
                 for (i = 0; i < entries.length; i += 1) {
-                    html.push(emojiButtonHtml(entries[i]));
+                    html.push(emojiCellHtml(entries[i], isFavoriteHex(emojiHex(entries[i]))));
+                }
+            } else if (activeCategory === FAVORITES_CATEGORY) {
+                entries = getFavoriteEntries();
+                preloadEntries(entries);
+                for (i = 0; i < entries.length; i += 1) {
+                    html.push(emojiCellHtml(entries[i], true));
                 }
             } else {
                 for (i = 0; i < categories.length; i += 1) {
@@ -604,24 +846,35 @@
                     }
                     preloadEntries(cat.emojis);
                     for (j = 0; j < cat.emojis.length; j += 1) {
-                        html.push(emojiButtonHtml(cat.emojis[j]));
+                        html.push(emojiCellHtml(
+                            cat.emojis[j],
+                            isFavoriteHex(emojiHex(cat.emojis[j]))
+                        ));
                     }
                     break;
                 }
             }
 
             if (!html.length) {
-                grid.innerHTML = '<div class="imvu-emoji-picker-empty">No emoji found</div>';
+                if (activeCategory === FAVORITES_CATEGORY && !query) {
+                    grid.innerHTML = '<div class="imvu-emoji-picker-empty">No favorites yet.<br>Click &#9734; on any emoji to add it.</div>';
+                } else {
+                    grid.innerHTML = '<div class="imvu-emoji-picker-empty">No emoji found</div>';
+                }
             } else {
                 grid.innerHTML = html.join('');
                 var imgs = grid.getElementsByTagName('img');
                 var k;
                 var btn;
+                var cell;
+                var hex;
                 for (k = 0; k < imgs.length; k += 1) {
                     btn = imgs[k].parentNode;
-                    if (btn && btn.getAttribute('data-emoji-hex')) {
+                    cell = btn ? btn.parentNode : null;
+                    hex = cell && cell.getAttribute ? cell.getAttribute('data-emoji-hex') : null;
+                    if (btn && hex) {
                         attachGridImgFallback(imgs[k]);
-                        cache.upgradeImg(imgs[k], btn.getAttribute('data-emoji-hex'));
+                        cache.upgradeImg(imgs[k], hex);
                     }
                 }
             }
@@ -683,6 +936,15 @@
             if (evt.stopPropagation) {
                 evt.stopPropagation();
             }
+        };
+
+        favHeader.onmousedown = function (evt) {
+            showFavoritesTab();
+            return stopPickerEvent(evt);
+        };
+
+        favHeader.onclick = function (evt) {
+            return stopPickerEvent(evt);
         };
 
         gear.onmousedown = function (evt) {
@@ -764,16 +1026,70 @@
             }
         };
 
-        grid.onclick = function (evt) {
-            var target = evt.target || evt.srcElement;
-            var button = target;
-            while (button && button !== grid) {
-                if (button.className && button.className.indexOf('imvu-emoji-picker-item') !== -1) {
-                    break;
+        function findGridCell(target) {
+            var node = target;
+            while (node && node !== grid) {
+                if (node.className && node.className.indexOf('imvu-emoji-picker-cell') !== -1) {
+                    return node;
                 }
-                button = button.parentNode;
+                node = node.parentNode;
             }
-            if (!button || button === grid) {
+            return null;
+        }
+
+        function findFavToggleButton(target) {
+            var node = target;
+            while (node && node !== grid) {
+                if (node.className && node.className.indexOf('imvu-emoji-picker-fav-toggle') !== -1) {
+                    return node;
+                }
+                node = node.parentNode;
+            }
+            return null;
+        }
+
+        function findGridEmojiButton(target) {
+            var node = target;
+            while (node && node !== grid) {
+                if (node.className && node.className.indexOf('imvu-emoji-picker-item') !== -1) {
+                    return node;
+                }
+                node = node.parentNode;
+            }
+            return null;
+        }
+
+        function toggleFavoriteFromEvent(evt) {
+            var target = evt.target || evt.srcElement;
+            var cell = findGridCell(target);
+            var hex;
+            if (!cell) {
+                return false;
+            }
+            hex = cell.getAttribute('data-emoji-hex');
+            if (!hex) {
+                return false;
+            }
+            toggleFavoriteHex(hex);
+            renderGrid();
+            updateHeaderFavBtn();
+            if (evt.preventDefault) {
+                evt.preventDefault();
+            }
+            if (evt.stopPropagation) {
+                evt.stopPropagation();
+            }
+            return true;
+        }
+
+        function handleGridActivate(evt) {
+            var target = evt.target || evt.srcElement;
+            if (findFavToggleButton(target)) {
+                toggleFavoriteFromEvent(evt);
+                return;
+            }
+            var button = findGridEmojiButton(target);
+            if (!button) {
                 return;
             }
             var emoji = button.getAttribute('data-emoji');
@@ -783,7 +1099,9 @@
             if (evt.stopPropagation) {
                 evt.stopPropagation();
             }
-        };
+        }
+
+        grid.onclick = handleGridActivate;
 
         if (window.IMVU && IMVU.Client && IMVU.Client.util && IMVU.Client.util.hint) {
             IMVU.Client.util.hint([search]);

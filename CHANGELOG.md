@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-06-03
+
+### Added
+
+- Emoji picker **Favorites** — ★ header button; click ☆ on an emoji to add or remove
+- **`--relaunch-imvu`** — start IMVU after a successful emoji install or restore
+- **GUI installer** — tkinter window with Install / Restore buttons and live log (`IMVU-Emoji-Installer.exe`, `install_gui.ps1`)
+
+### Changed
+
+- Release asset is a standalone **`IMVU-Emoji-Installer.exe`** (onefile GUI) instead of a zip folder
+- `install.ps1` and the `.exe` installer prompt you to close IMVU, wait until it exits, patch, then relaunch (no force-kill)
+- Emoji favorites: click ☆ on an emoji to toggle; header ★ opens favorites view
+
 ## [1.0.3] - 2026-06-03
 
 ### Added
@@ -71,6 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IMVU-Emoji-Installer.exe` Windows installer (PyInstaller bundle)
 - Auto-close IMVU before patching (overridable with `--no-close-imvu`)
 
+[1.0.4]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.4
 [1.0.3]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.3
 [1.0.2]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.2
 [1.0.1]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.1

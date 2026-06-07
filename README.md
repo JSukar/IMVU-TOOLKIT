@@ -28,7 +28,7 @@ pytest
 ruff check src tests
 ```
 
-Tag a release (`git tag v1.0.3 && git push origin v1.0.3`) to build and publish `IMVU-Emoji-Installer.zip` via GitHub Actions.
+Tag a release (`git tag v1.0.4 && git push origin v1.0.4`) to build and publish `IMVU-Emoji-Installer.exe` via GitHub Actions.
 
 ---
 
@@ -50,11 +50,27 @@ cd IMVU-TOOLKIT
 
 Restore: `.\install.ps1 --restore`
 
-**Option A — Zip installer (no Python on target PC)**
+**Option A — GUI installer (no Python on target PC)**
 
-1. Download `IMVU-Emoji-Installer.zip` from [Releases](https://github.com/JSukar/IMVU-TOOLKIT/releases).
-2. Extract the folder, **close IMVU**, then run `IMVU-Emoji-Installer.exe` inside it.
-3. Restart IMVU and click the smiley button beside **Send**.
+1. Download `IMVU-Emoji-Installer.exe` from [Releases](https://github.com/JSukar/IMVU-TOOLKIT/releases).
+2. Run it — a window opens with **Install** / **Restore** buttons (if IMVU is open, close it when prompted).
+3. Click the smiley button beside **Send** in chat.
+
+**Option B — GUI from source (Python 3.10+)**
+
+```powershell
+git clone https://github.com/JSukar/IMVU-TOOLKIT.git
+cd IMVU-TOOLKIT
+.\install_gui.ps1
+```
+
+Restore: `.\install_gui.ps1 --restore`
+
+**Option C — CLI script (Defender-safe, no window)**
+
+```powershell
+.\install.ps1
+```
 
 **Defender still blocks the `.exe`?** Use `install.ps1` above, or see [FAQ → Defender](docs/FAQ.md#windows-defender-blocks-or-deletes-the-installer).
 
@@ -62,7 +78,7 @@ Restore: `.\install.ps1 --restore`
 
 **Verify before you run:** SHA256 and VirusTotal link for the `.exe` are on each [release page](https://github.com/JSukar/IMVU-TOOLKIT/releases/latest).
 
-Restore (zip build): `IMVU-Emoji-Installer.exe --restore`
+Restore: `IMVU-Emoji-Installer.exe --restore` (GUI) or `IMVU-Emoji-Installer.exe --cli --restore` (console)
 
 **Build locally:**
 
@@ -70,7 +86,7 @@ Restore (zip build): `IMVU-Emoji-Installer.exe --restore`
 .\build_installer.ps1
 ```
 
-Output: `dist\IMVU-Emoji-Installer.zip` (extract and run `IMVU-Emoji-Installer\IMVU-Emoji-Installer.exe`)
+Output: `dist\IMVU-Emoji-Installer.exe`
 
 ### Demo (screenshots)
 
@@ -84,6 +100,7 @@ Settings (gear) and about (i): [emoji-picker-settings.png](docs/emoji-picker-set
 
 - **Search** — filter ~1,880 Unicode 15.1 emojis by keyword
 - **Categories** — Smileys, People, Nature, Food, Travel, Activity, Objects, Symbols, Flags
+- **Favorites** — ★ button next to **i** opens your list; click ☆ on any emoji to add or remove (saved locally, persists across IMVU restarts)
 - **Shortcuts** — `lol`, `:)` , etc. with replace or append mode (gear icon)
 - **Cache** — Twemoji PNGs from jsDelivr, stored in localStorage after first load
 - **Restore** — timestamped backups + `--restore`

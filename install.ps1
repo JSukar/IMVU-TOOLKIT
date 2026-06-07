@@ -12,17 +12,16 @@ try {
     }
     python -m pip install -e . -q
     if ($restore) {
-        python -m imvu_toolkit emoji restore
+        python -m imvu_toolkit emoji restore --relaunch-imvu
     } else {
-        Write-Host "Close IMVU before continuing."
-        python -m imvu_toolkit emoji install --no-close-imvu
+        python -m imvu_toolkit emoji install --relaunch-imvu
     }
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     Write-Host ""
     if ($restore) {
-        Write-Host "Restore complete. Restart IMVU."
+        Write-Host "Restore complete."
     } else {
-        Write-Host "Install complete. Restart IMVU and click the smiley button beside Send."
+        Write-Host "Install complete. Click the smiley button beside Send in chat."
     }
 } finally {
     Pop-Location
