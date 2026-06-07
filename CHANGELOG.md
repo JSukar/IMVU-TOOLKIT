@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-06-07
+
+### Added
+
+- Emoji picker **Favorites** — ★ header button; click ☆ on an emoji to add or remove
+
+### Fixed
+
+- **Transparent app icon** — regenerate `.ico` from the PNG with proper alpha (`scripts/generate_icon.py`); exe/window icons no longer show a solid background
+
 ## [1.0.4] - 2026-06-03
 
 ### Added
@@ -85,6 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IMVU-Emoji-Installer.exe` Windows installer (PyInstaller bundle)
 - Auto-close IMVU before patching (overridable with `--no-close-imvu`)
 
+[1.1.0]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.1.0
 [1.0.4]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.4
 [1.0.3]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.3
 [1.0.2]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.2

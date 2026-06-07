@@ -50,6 +50,6 @@ python -m imvu_toolkit dpi clean-layout --restore
 
 ## Releases
 
-Tag with semver (`v1.0.4`). Pushing a tag triggers the release workflow, which builds `IMVU-Emoji-Installer.exe` on Windows and publishes release notes from `CHANGELOG.md`.
+Tag with semver (`v1.1.0`). Pushing a tag triggers the release workflow, which builds `IMVU-Emoji-Installer.exe` on Windows and publishes release notes from `CHANGELOG.md`.
 
 After each release, submit the built `.exe` to [Microsoft Defender file submission](https://www.microsoft.com/en-us/wdsi/filesubmission) as a false positive (Software developer + link to repo).

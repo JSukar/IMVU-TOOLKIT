@@ -7,9 +7,9 @@ python -m pip install --upgrade -r requirements-build.txt
 
 $iconPng = Join-Path $PSScriptRoot "assets\imvu-toolkit-logo.png"
 $iconIco = Join-Path $PSScriptRoot "assets\imvu-toolkit-logo.ico"
-if ((Test-Path $iconPng) -and -not (Test-Path $iconIco)) {
-    Write-Host "Generating icon from logo PNG..."
-    python -c "from PIL import Image; img=Image.open(r'$iconPng').convert('RGBA'); img.save(r'$iconIco', format='ICO', sizes=[(256,256),(128,128),(64,64),(48,48),(32,32),(16,16)])"
+if (Test-Path $iconPng) {
+    Write-Host "Generating transparent icon from logo PNG..."
+    python scripts/generate_icon.py
 }
 
 Write-Host "Generating Windows version metadata..."

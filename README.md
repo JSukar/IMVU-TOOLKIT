@@ -28,7 +28,7 @@ pytest
 ruff check src tests
 ```
 
-Tag a release (`git tag v1.0.4 && git push origin v1.0.4`) to build and publish `IMVU-Emoji-Installer.exe` via GitHub Actions.
+Tag a release (`git tag v1.1.0 && git push origin v1.1.0`) to build and publish `IMVU-Emoji-Installer.exe` via GitHub Actions.
 
 ---
 
