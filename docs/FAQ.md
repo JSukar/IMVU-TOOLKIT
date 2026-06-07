@@ -8,6 +8,62 @@ Back to [README](../README.md) | [Architecture](architecture.md) | [Compatibilit
 
 The installer is not code-signed. Click **More info** → **Run anyway**. Download only from [official Releases](https://github.com/JSukar/IMVU-TOOLKIT/releases).
 
+### Windows Defender blocks or deletes the installer
+
+Defender is **stronger than SmartScreen** — it may quarantine the `.exe` before you can run it. That is a known false positive for unsigned PyInstaller patch tools (same build as [GitHub Actions](https://github.com/JSukar/IMVU-TOOLKIT/actions); see source on GitHub).
+
+**Fastest workaround — run `install.ps1`** (same patch, no PyInstaller `.exe`):
+
+```powershell
+git clone https://github.com/JSukar/IMVU-TOOLKIT.git
+cd IMVU-TOOLKIT
+.\install.ps1
+```
+
+Close IMVU first. Restore: `.\install.ps1 --restore`
+
+Requires Python 3.10+. If you already cloned the repo locally, run `.\install.ps1` from the project folder.
+
+If you already downloaded the installer and want to run it anyway:
+
+1. **Protection history** — *Settings* → *Privacy & security* → *Windows Security* → *Virus & threat protection* → *Protection history* → select `IMVU-Emoji-Installer.exe` → **Restore** → **Allow on device** (wording may vary).
+2. **Unblock download** (SmartScreen / Mark of the Web) — PowerShell in the download folder:
+   ```powershell
+   Unblock-File -LiteralPath .\IMVU-Emoji-Installer.exe
+   ```
+3. **Exclusion (your PC only)** — *Virus & threat protection* → *Manage settings* → *Exclusions* → *Add an exclusion* → *File* → pick the `.exe`. Only do this if you verified SHA256 from [Releases](https://github.com/JSukar/IMVU-TOOLKIT/releases/latest).
+
+**Maintainer:** after each release, submit the `.exe` as a false positive to [Microsoft Defender submissions](https://www.microsoft.com/en-us/wdsi/filesubmission) (pick *Software developer*, link to the repo/release). That can clear Defender for everyone over time — code signing is still the best long-term fix.
+
+### Is the installer safe? (VirusTotal)
+
+The `.exe` is built from this repo by [GitHub Actions](https://github.com/JSukar/IMVU-TOOLKIT/actions) — no bundled adware or installers.
+
+1. Download only from [Releases](https://github.com/JSukar/IMVU-TOOLKIT/releases/latest).
+2. Confirm the **SHA256** on the release asset matches your file (PowerShell: `Get-FileHash .\\IMVU-Emoji-Installer.exe -Algorithm SHA256`).
+3. See the linked **[VirusTotal report](https://www.virustotal.com/gui/file/298fa3563585a13f67eeaccb6ac7b4c092e2e43c1a35250e14b519bf12436a48)** for the current v1.0.2 build (hash-based; updates each release).
+
+If VirusTotal shows “file not found,” the maintainer may not have submitted that build yet — use the SHA256 check and inspect the source here on GitHub.
+
+### VirusTotal shows a few detections (e.g. 5/71) — is it malware?
+
+**Almost certainly false positives**, not proof of malware. For unsigned PyInstaller `.exe` files, a handful of heuristic hits is normal; **most engines (60+) reporting “clean” is what you want to look at.**
+
+Common reasons AV heuristics flag this installer:
+
+| Behavior | Why scanners care | What we actually do |
+| --- | --- | --- |
+| Self-extracting single `.exe` | Same packer pattern as some trojans | PyInstaller bundles Python + your patch code |
+| Not code-signed | No publisher reputation | Same as SmartScreen “Unknown publisher” |
+| Closes another process | “Hacktool” / “PUA” heuristics | v1.0.3+ asks you to close IMVU manually (no `taskkill /F`) |
+| Edits files under `%APPDATA%` | Generic “modifier” behavior | Patches `library.zip` / `imvuContent.jar` only |
+
+**How to verify yourself:** read the [source](https://github.com/JSukar/IMVU-TOOLKIT), match SHA256 to the release, and compare detections before/after each release. Microsoft Defender and other major vendors usually show **undetected** when the build is clean.
+
+**What helps long term:** code signing (best fix), rebuilding without UPX compression (done in `imvu_emoji_installer.spec` from v1.0.3+), and submitting a **false-positive report** on the VirusTotal page (**Contact vendor** / vendor-specific forms) after each new release.
+
+Names like *HackTool*, *PUA*, *Generic.ml*, or *PyInstaller* in a detection label are typical for open-source patch tools, not confirmed malware.
+
 ### IMVU was open when I ran the installer
 
 The installer tries to close IMVU automatically. If that fails, close IMVU manually and run again.

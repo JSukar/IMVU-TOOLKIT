@@ -28,7 +28,7 @@ pytest
 ruff check src tests
 ```
 
-Tag a release (`git tag v1.0.2 && git push origin v1.0.2`) to build and publish `IMVU-Emoji-Installer.exe` via GitHub Actions.
+Tag a release (`git tag v1.0.3 && git push origin v1.0.3`) to build and publish `IMVU-Emoji-Installer.zip` via GitHub Actions.
 
 ---
 
@@ -40,15 +40,29 @@ IMVU Classic cannot render modern Unicode emoji natively. Missing glyphs show up
 
 ### Quick start
 
-**Option A — Installer (no Python needed)**
+**Recommended if Windows Defender blocked the old `.exe` — `install.ps1` (Python 3.10+)**
 
-1. Download `IMVU-Emoji-Installer.exe` from [Releases](https://github.com/JSukar/IMVU-TOOLKIT/releases).
-2. Double-click to install (IMVU closes automatically if running).
+```powershell
+git clone https://github.com/JSukar/IMVU-TOOLKIT.git
+cd IMVU-TOOLKIT
+.\install.ps1
+```
+
+Restore: `.\install.ps1 --restore`
+
+**Option A — Zip installer (no Python on target PC)**
+
+1. Download `IMVU-Emoji-Installer.zip` from [Releases](https://github.com/JSukar/IMVU-TOOLKIT/releases).
+2. Extract the folder, **close IMVU**, then run `IMVU-Emoji-Installer.exe` inside it.
 3. Restart IMVU and click the smiley button beside **Send**.
+
+**Defender still blocks the `.exe`?** Use `install.ps1` above, or see [FAQ → Defender](docs/FAQ.md#windows-defender-blocks-or-deletes-the-installer).
 
 **Windows SmartScreen:** the installer is unsigned. Click **More info** → **Run anyway**. See [FAQ](docs/FAQ.md).
 
-Restore: `IMVU-Emoji-Installer.exe --restore`
+**Verify before you run:** SHA256 and VirusTotal link for the `.exe` are on each [release page](https://github.com/JSukar/IMVU-TOOLKIT/releases/latest).
+
+Restore (zip build): `IMVU-Emoji-Installer.exe --restore`
 
 **Build locally:**
 
@@ -56,14 +70,7 @@ Restore: `IMVU-Emoji-Installer.exe --restore`
 .\build_installer.ps1
 ```
 
-Output: `dist\IMVU-Emoji-Installer.exe`
-
-**Option B — Python**
-
-```powershell
-python .\patch_imvu_emoji.py
-python .\patch_imvu_emoji.py --restore
-```
+Output: `dist\IMVU-Emoji-Installer.zip` (extract and run `IMVU-Emoji-Installer\IMVU-Emoji-Installer.exe`)
 
 ### Demo (screenshots)
 

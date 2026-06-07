@@ -1,1 +1,45 @@
-name: Release  on:   push:     tags:       - "v*"  jobs:   release:     runs-on: windows-latest     permissions:       contents: write     steps:       - uses: actions/checkout@v6       - uses: actions/setup-python@v6         with:           python-version: "3.12"       - name: Install build dependencies         run: python -m pip install -e ".[build]"       - name: Build installer         shell: pwsh         run: ./build_installer.ps1       - name: Write release notes from CHANGELOG         shell: pwsh         run: |           python scripts/extract_changelog.py CHANGELOG.md "${{ github.ref_name }}" > release_notes.md       - name: Create GitHub Release         uses: softprops/action-gh-release@v3         with:           files: dist/IMVU-Emoji-Installer.exe           body_path: release_notes.md
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install build dependencies
+        run: python -m pip install -e ".[build]"
+      - name: Build installer
+        shell: pwsh
+        run: ./build_installer.ps1
+      - name: Write release notes from CHANGELOG
+        shell: pwsh
+        run: |
+          python scripts/extract_changelog.py CHANGELOG.md "${{ github.ref_name }}" > release_notes.md
+          $exe = "dist/IMVU-Emoji-Installer/IMVU-Emoji-Installer.exe"
+          $hash = (Get-FileHash $exe -Algorithm SHA256).Hash.ToLower()
+          @"
+
+          ## Verification
+
+          Extract `IMVU-Emoji-Installer.zip`, then verify the `.exe` inside.
+
+          "@ | Add-Content -Path release_notes.md -Encoding utf8
+          Add-Content -Path release_notes.md -Encoding utf8 ('**SHA256 (exe inside zip):** `{0}`' -f $hash)
+          Add-Content -Path release_notes.md -Encoding utf8 ""
+          Add-Content -Path release_notes.md -Encoding utf8 ("[VirusTotal report](https://www.virustotal.com/gui/file/{0})" -f $hash)
+          Add-Content -Path release_notes.md -Encoding utf8 ""
+          Add-Content -Path release_notes.md -Encoding utf8 '**Defender blocked the download?** Clone the repo and run `install.ps1` (Python, no bundled .exe).'
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: dist/IMVU-Emoji-Installer.zip
+          body_path: release_notes.md

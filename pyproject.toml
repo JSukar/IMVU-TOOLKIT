@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "imvu-toolkit"
-version = "1.0.2"
+version = "1.0.3"
 description = "Fix chat emoji and optional DPI scaling for IMVU Classic on Windows"
 readme = "README.md"
 license = { text = "MIT" }

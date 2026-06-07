@@ -14,8 +14,14 @@ src/imvu_toolkit.egg-info/entry_points.txt
 src/imvu_toolkit.egg-info/requires.txt
 src/imvu_toolkit.egg-info/top_level.txt
 src/imvu_toolkit/patches/__init__.py
+src/imvu_toolkit/patches/dpi/__init__.py
+src/imvu_toolkit/patches/dpi/registry.py
 src/imvu_toolkit/patches/emoji/__init__.py
 src/imvu_toolkit/patches/emoji/constants.py
 src/imvu_toolkit/patches/emoji/patch.py
 src/imvu_toolkit/patches/emoji/transforms.py
+src/imvu_toolkit/tools/__init__.py
+src/imvu_toolkit/tools/runner.py
 tests/test_emoji_patch.py
+tests/test_jar_integration.py
+tests/test_release.py

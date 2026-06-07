@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-06-03
+
+### Added
+
+- `install.ps1` — install/restore via Python (recommended when Windows Defender blocks the `.exe`)
+- Windows version metadata on the installer (`scripts/generate_version_info.py`)
+
+### Changed
+
+- Installer ships as **onedir** folder inside `IMVU-Emoji-Installer.zip` (fewer Defender false positives than onefile)
+- Installer no longer force-kills IMVU (`taskkill /F` removed); close IMVU manually or use graceful window close
+- Release asset is `IMVU-Emoji-Installer.zip` (run `IMVU-Emoji-Installer.exe` inside the extracted folder)
+
+### Fixed
+
+- Reduced antivirus false positives: disabled UPX, removed aggressive process termination, added file version info
+
 ## [1.0.2] - 2026-06-03
 
 ### Added
@@ -54,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IMVU-Emoji-Installer.exe` Windows installer (PyInstaller bundle)
 - Auto-close IMVU before patching (overridable with `--no-close-imvu`)
 
+[1.0.3]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.3
 [1.0.2]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.2
 [1.0.1]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.1
 [1.0.0]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.0

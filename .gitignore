@@ -1,5 +1,6 @@
 build/
 dist/
+assets/installer_version_info.txt
 __pycache__/
 **/__pycache__/
 *.py[cod]

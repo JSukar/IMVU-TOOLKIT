@@ -28,7 +28,7 @@ def print_banner(restore):
         print("\nMode: RESTORE (undo emoji patch)")
     else:
         print("\nMode: INSTALL")
-        print("If IMVU is open, this installer will close it automatically.")
+        print("Close IMVU before continuing (this build does not force-kill IMVU).")
     print("")
 
 
@@ -44,7 +44,11 @@ def main():
 
     from imvu_toolkit.patches.emoji.patch import main as patch_main
 
-    code = patch_main()
+    argv = ["--no-close-imvu"]
+    if restore:
+        argv.append("--restore")
+
+    code = patch_main(argv)
 
     print("")
     if code == 0:
@@ -53,7 +57,8 @@ def main():
         else:
             print("Install complete. Restart IMVU and click the smiley button beside Send.")
     elif code == 2:
-        print("Could not close IMVU. Close it manually and run this installer again.")
+        print("Close IMVU manually and run this installer again.")
+        print("Or use install.ps1 if Windows Defender blocks this .exe.")
     else:
         print("Installer failed. Review the messages above.")
 

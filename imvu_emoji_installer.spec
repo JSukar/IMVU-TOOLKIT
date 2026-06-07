@@ -1,10 +1,12 @@
 # PyInstaller spec for IMVU Emoji Patch Installer (Windows .exe)
 # Build: pyinstaller --clean imvu_emoji_installer.spec
+# Output: dist/IMVU-Emoji-Installer/ (onedir — fewer AV false positives than onefile)
 
 import os
 
 ROOT = os.path.abspath(SPECPATH)
 ICON = os.path.join(ROOT, "assets", "imvu-toolkit-logo.ico")
+VERSION_INFO = os.path.join(ROOT, "assets", "installer_version_info.txt")
 
 datas = [
     (os.path.join(ROOT, "emoji_assets", "js"), os.path.join("emoji_assets", "js")),
@@ -40,16 +42,13 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
     [],
+    exclude_binaries=True,
     name="IMVU-Emoji-Installer",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
+    upx=False,
     console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
@@ -57,4 +56,14 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=ICON if os.path.exists(ICON) else None,
+    version=VERSION_INFO if os.path.exists(VERSION_INFO) else None,
+)
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=False,
+    name="IMVU-Emoji-Installer",
 )
