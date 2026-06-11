@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-06-03
+
+### Added
+
+- **Room antibot patch** — room owners and mods auto-boot VuArchives promo bots when spam messages match known patterns (`vuarchives.com`, tracking IDs, etc.)
+- **Shield UI** in chat — green shield when active; popup with **Boot log** and **Whitelist** tabs
+- **Whitelist** — add/remove trusted users; paginated list; persisted to `%APPDATA%\IMVUClient\antibot_whitelist.json` (built-in trusted IDs included)
+- CLI: `python -m imvu_toolkit antibot install|restore`
+- **`IMVU-Antibot-Installer.exe`** GUI installer (Install / Restore, live log) plus `install_antibot.ps1` and `install_antibot_gui.ps1`
+- Restore from `.bak-antibot-*` backups on `library.zip` and `imvuContent.jar`
+- CI and release workflow publish **both** `IMVU-Emoji-Installer.exe` and `IMVU-Antibot-Installer.exe`
+- **`docs/antibot.md`** — install guide, detection rules, architecture, bot research, and screenshots
+
+### Fixed
+
+- Antibot popup no longer turns the chat panel black (popup appended to `document.body` with fixed positioning)
+- Whitelist tab no longer overflows the popup; fixed height, scrollable body, and pagination
+- GUI installer `profile=` keyword crash (`profile_id=` in antibot and emoji entry points)
+- `imvu.call.apply` crash on IMVU’s old Gecko engine (direct `imvu.call` in antibot JS)
+- Decompiled Python patches cleaned before inject (`_clean_decompiled_source`) to avoid IMVU crashes
+
+### Changed
+
+- Shared installer framework (`installer/profiles.py`) parameterized for emoji and antibot builds
+- `build_installer.ps1` builds both installer executables
+- README and `docs/architecture.md` link to antibot documentation
+
 ## [1.1.1] - 2026-06-08
 
 ### Fixed
@@ -110,6 +137,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IMVU-Emoji-Installer.exe` Windows installer (PyInstaller bundle)
 - Auto-close IMVU before patching (overridable with `--no-close-imvu`)
 
+[1.2.0]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.0
+[1.1.1]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.1.1
 [1.1.0]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.1.0
 [1.0.4]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.4
 [1.0.3]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.0.3
