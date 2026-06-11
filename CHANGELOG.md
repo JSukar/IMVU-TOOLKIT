@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-06-11
+
+### Added
+
+- **Forged JSON `chatId` detection** — boots third-party injectors that hardcode `"chatId": "141"` while the IMQ queue is the real room id (Findzu/Findgu-style prejoin protocol); boot reason `forged_chat_id`
+- **Findzu / Findgu promo markers** — `findzu.net`, `findgu.net` in normalized message text (fallback when chat id is correct)
+- **`tools/analyze_chatid_mismatch.py`** — scans `IMVULog.log*` for JSON `chatId` vs queue mismatches (used to validate zero false positives on normal users before shipping)
+
+### Changed
+
+- `check_incoming_message()` evaluates forged chat id **before** promo text so prejoin `*isPureUser` / `*putOnOutfit` bursts are booted immediately
+- **`docs/antibot.md`** — Pattern C (Findzu), forged-chat-id rules, chatId log analysis notes
+
 ## [1.2.0] - 2026-06-03
 
 ### Added

@@ -1,6 +1,6 @@
-﻿# IMVU VuArchives Spam Bots & Room Antibot — Reference
+﻿# IMVU Promo Spam Bots & Room Antibot — Reference
 
-Research notes on VuArchives promo bots, plus how the **IMVU Toolkit room antibot patch** detects and boots them.
+Research notes on VuArchives, Findzu/Findgu, and related promo bots, plus how the **IMVU Toolkit room antibot patch** detects and boots them.
 
 Back to [README](../README.md) | [Architecture](architecture.md) | [FAQ](FAQ.md)
 
@@ -46,15 +46,17 @@ flowchart TD
     B -->|No| Z[Shield gray — no auto-boot]
     B -->|Yes| C{User whitelisted?}
     C -->|Yes| Z2[Message allowed — no boot]
-    C -->|No| D{Promo message detected?}
-    D -->|No| Z2
-    D -->|Yes| E[Client calls bootUser]
-    E --> F[Boot log updated + shield UI refresh]
+    C -->|No| D{JSON chatId matches room?}
+    D -->|No| E[Client calls bootUser]
+    D -->|Yes| G{Promo message detected?}
+    G -->|No| Z2
+    G -->|Yes| E
+    E --> H[Boot log updated + shield UI refresh]
 ```
 
 **What it does**
 
-- Hooks IMVU's chat pipeline (`meet.py`) and boots users who post **known VuArchives promo text**.
+- Hooks IMVU's chat pipeline (`meet.py`) and boots users on **forged JSON chatId** (third-party tools) or **known promo text** (VuArchives, Findzu/Findgu).
 - Shows a **shield icon** beside Send: green **ON** when you can boot in this room, gray when inactive.
 - Click the shield for **Boot log** (session) and **Whitelist** (persistent).
 
@@ -101,6 +103,19 @@ Before matching, text is lowercased and scrubbed of:
 - **Zero-width characters** (U+200B, U+200C, U+200D, U+FEFF, U+2060)
 - **Homoglyphs** (Cyrillic/Greek/Armenian lookalikes → ASCII, e.g. `vuɑrϲhives.ϲοm` → `vuarchives.com`)
 
+### Triggers a boot (`forged_chat_id`)
+
+Runs **before** promo text matching. Compares `session.getChatId()` to the JSON `chatId` on each incoming IMQ message.
+
+| Condition | Example |
+|-----------|---------|
+| JSON `chatId` ≠ room queue id | Queue `/chat/367242394`, JSON `"chatId":"141"` |
+| Both ids present and &gt; 0 | Missing or zero chat id → skip (no boot) |
+
+Observed in log analysis: **every mismatch used hardcoded `141`**; **zero mismatches** among normal IMVU client users in 256 recent messages (`IMVULog.log.1` + live log). Re-run `tools/analyze_chatid_mismatch.py` on fresh logs after incidents.
+
+**Note:** IMVU's existing `forged message detected` log line in `meet.py` checks `from_id != userId` in JSON (string vs int), **not** chat id mismatch.
+
 ### Triggers a boot (`promo_message`)
 
 Any of these in normalized message text:
@@ -111,6 +126,8 @@ Any of these in normalized message text:
 | `vuarchives` | Brand as one word |
 | `h87ftaz6v8` | Discord invite code (recent campaign) |
 | `sdkpd4knjd` | Discord invite code (older campaign) |
+| `findzu.net` | FindVU / room-tracking promos |
+| `findgu.net` | Findgu successor site |
 
 ### Explicitly does **not** trigger
 
@@ -296,6 +313,8 @@ Two link campaigns were observed:
 | Guest_raulayla07 | 390308798 | 341256288 | `IMVU\IMVULog.log.2` | — | — |
 | Guest_douglascoy01 | 390308787 | 341256288 | `IMVU\IMVULog.log.2` | — | — |
 | (ignored) | 390308788, 390308784 | 341256288 | `IMVU\IMVULog.log.2` | — | never joined |
+| Guest_cerci0n | 390570744 | 367242394 | live `IMVULog.log` (rotated) | 2026-06-10 | ~15s; findzu.net |
+| (findzu) | 390349103, 390349077 | 339914666 | `IMVULog.log.4` | — | findzu.net promo |
 
 ---
 
@@ -335,6 +354,27 @@ Seen in older `IMVULog.log.2` (`Guest_mhagenes4`):
 3. Same ~15s exit
 
 Both patterns share the same post-join profile: default outfit, one ad, quick leave.
+
+### Spam bot (Pattern C: forged chatId — Findzu / Findgu)
+
+Observed in `IMVULog.log.4` and live sessions (`Guest_cerci0n`, findzu.net promos):
+
+1. Prejoin IMQ burst with JSON **`"chatId":"141"`** while queue is the real room (e.g. `/chat/367242394`)
+2. Protocol forged via injector: `*imvu:isPureUser`, `*putOnOutfit`, `*use`, `*msg SeatAssignment`
+3. Client logs `forged message detected` (userId string mismatch — separate check)
+4. Full outfit (many PIDs), not `[2999]` only
+5. Promo ad ~4s after visible join (Pattern B timing) or on prejoin burst
+6. Often leaves ~15s later if not booted
+
+**Example (findzu guest, chat 339914666):**
+
+```
+onImqMessage(['390349103', u'/chat/339914666', …, '{"chatId":"141","message":"*imvu:isPureUser",…}'])
+… later …
+onImqMessage([…, '{"chatId":"141","message":"Historical Room Viewer → Try Today - findzu.net",…}'])
+```
+
+VuArchives bots (Pattern A/B) typically send the **correct** room id in JSON — they are caught by promo markers, not chat id checks.
 
 ### Normal user (typical)
 
@@ -386,7 +426,8 @@ Repeats while staying in room — outfit/seat sync, not promo.
 | Seat assignment | Often high or arbitrary seats (e.g. seat 17) | Consistent seat sync via `*msg SeatAssignment` |
 | Avatar card / interaction | Minimal; quick exit | May open avatar cards, ongoing IMQ traffic |
 | URL evasion | Homoglyphs (`vuɑrϲhives.ϲοm`) or zero-width chars | N/A |
-| Campaign rotation | Two Discord invites observed across log history | N/A |
+| JSON `chatId` vs IMQ queue | Often wrong (`141`) on Findzu/imvu.bot injectors | Always matches session room id |
+| Campaign rotation | VuArchives Discord codes; Findzu/Findgu URLs | N/A |
 
 ---
 
@@ -480,7 +521,12 @@ A participant is **likely normal** if:
 
 ### What the live antibot patch actually uses
 
-The installed patch does **not** use outfit PIDs, dwell time, or guest UID ranges. It only boots on **promo message content** (see [Detection rules](#detection-rules)) when you have boot privileges. Research heuristics above informed what to avoid (e.g. join-time guest booting) and which URL markers to keep.
+The installed patch does **not** use outfit PIDs, dwell time, or guest UID ranges. When you have boot privileges it boots on:
+
+1. **Forged JSON `chatId`** (`forged_chat_id`) — checked first on every message
+2. **Promo message content** (`promo_message`) — VuArchives, Findzu/Findgu markers
+
+Research heuristics above informed what to avoid (e.g. join-time guest name booting) and which signals to keep.
 
 ---
 
@@ -557,12 +603,11 @@ Key log functions involved:
 
 ## Open Questions / Not Yet Observed
 
-- Whether bots ever send `*imvu:isPureUser` before ads (normal guests sometimes do)
-- Full leave timing for every archived bot in `IMVULog.log.2`
 - Whether blocking guest chat would stop ad delivery before `notifyNewMessage`
 - Server-side origin of IMQ message-before-join ordering
+- Whether future injectors will use correct `chatId` but still spam (promo markers remain the fallback)
 
 ---
 
-*Bot research: log analysis session 2026-06-10. Antibot patch docs updated 2026-06-11. Re-run grep/analysis on fresh `IMVULog.log` after new incidents to extend the bot list.*
+*Bot research: log analysis sessions 2026-06-10 – 2026-06-11. Antibot patch docs updated 2026-06-11. Re-run `tools/analyze_chatid_mismatch.py` and grep on fresh `IMVULog.log` after new incidents.*
 

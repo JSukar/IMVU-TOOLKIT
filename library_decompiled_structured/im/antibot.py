@@ -228,6 +228,8 @@ _PROMO_MARKERS = (
     'vuarchives.com',
     'h87ftaz6v8',
     'sdkpd4knjd',
+    'findzu.net',
+    'findgu.net',
 )
 
 
@@ -255,6 +257,30 @@ def is_promo_message(text):
     if 'vuarchives' in normalized:
         return True
     return False
+
+
+def _parse_chat_id(value):
+    if value is None:
+        return None
+    try:
+        chat_id = int(value)
+    except (TypeError, ValueError):
+        return None
+    if chat_id <= 0:
+        return None
+    return chat_id
+
+
+def is_forged_chat_id(session, message_dict):
+    """JSON chatId must match the room session queue id (third-party tools often send 141)."""
+    get_chat_id = getattr(session, 'getChatId', None)
+    if not get_chat_id:
+        return False
+    session_chat_id = _parse_chat_id(get_chat_id())
+    json_chat_id = _parse_chat_id(message_dict.get('chatId'))
+    if session_chat_id is None or json_chat_id is None:
+        return False
+    return session_chat_id != json_chat_id
 
 
 def has_mod_boot_power(session):
@@ -292,6 +318,8 @@ def check_incoming_message(session, from_id, message_dict):
         return False, None
     if is_whitelisted(from_id):
         return False, None
+    if is_forged_chat_id(session, message_dict):
+        return True, 'forged_chat_id'
     message = message_dict.get('message', '')
     if is_promo_message(message):
         return True, 'promo_message'

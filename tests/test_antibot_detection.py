@@ -33,6 +33,14 @@ def test_is_promo_message_ignores_normal_chat():
     assert not antibot.is_promo_message(u"hey welcome to my room")
 
 
+def test_is_promo_message_detects_findzu():
+    antibot = _load_antibot_module()
+    assert antibot.is_promo_message(
+        u"Ultimate IMVU Tool \u2192 Best Features - findzu.net"
+    )
+    assert antibot.is_promo_message(u"Historical Room Viewer - findgu.net")
+
+
 def test_is_promo_message_flags_known_campaign_codes():
     antibot = _load_antibot_module()
     assert antibot.is_promo_message(u"discord.gg/sDKpD4knJd")
@@ -70,11 +78,13 @@ def test_whitelist_owner_bots():
     assert not antibot.is_whitelisted(390288702)
 
 
-def test_check_incoming_message_ignores_prejoin_protocol():
-    antibot = _load_antibot_module()
-
+def _mod_session(chat_id=367242394):
     class Session(object):
         userId_ = 21517672
+        chatId_ = chat_id
+
+        def getChatId(self):
+            return self.chatId_
 
         def getParticipantUserIds(self):
             return [21517672, 386805690]
@@ -85,7 +95,12 @@ def test_check_incoming_message_ignores_prejoin_protocol():
         def isRoomSession(self):
             return True
 
-    session = Session()
+    return Session()
+
+
+def test_check_incoming_message_ignores_prejoin_protocol():
+    antibot = _load_antibot_module()
+    session = _mod_session()
     for msg in (
         u"*imvu:isPureUser",
         u"*msg SeatAssignment 3 390573580 4 0",
@@ -93,32 +108,68 @@ def test_check_incoming_message_ignores_prejoin_protocol():
         u"*use 80 45773940",
     ):
         block, reason = antibot.check_incoming_message(
-            session, 390573580, {"message": msg}
+            session,
+            390573580,
+            {"message": msg, "chatId": session.chatId_},
         )
         assert not block, msg
         assert reason is None, msg
 
 
+def test_is_forged_chat_id_detects_hardcoded_141():
+    antibot = _load_antibot_module()
+    session = _mod_session(367242394)
+    assert antibot.is_forged_chat_id(
+        session, {"chatId": "141", "message": u"*imvu:isPureUser"}
+    )
+    assert not antibot.is_forged_chat_id(
+        session, {"chatId": 367242394, "message": u"*imvu:isPureUser"}
+    )
+    assert not antibot.is_forged_chat_id(
+        session, {"message": u"*imvu:isPureUser"}
+    )
+
+
+def test_check_incoming_message_flags_forged_chat_id_prejoin():
+    antibot = _load_antibot_module()
+    session = _mod_session(367242394)
+    block, reason = antibot.check_incoming_message(
+        session,
+        390570744,
+        {
+            "chatId": "141",
+            "message": u"*msg SeatAssignment 3 390570744 1 0",
+        },
+    )
+    assert block
+    assert reason == "forged_chat_id"
+
+
+def test_check_incoming_message_flags_findzu_promo():
+    antibot = _load_antibot_module()
+    session = _mod_session(339914666)
+    block, reason = antibot.check_incoming_message(
+        session,
+        390349103,
+        {
+            "chatId": "141",
+            "message": u"Historical Room Viewer \u2192 Try Today - findzu.net",
+        },
+    )
+    assert block
+    assert reason == "forged_chat_id"
+
+
 def test_check_incoming_message_flags_prejoin_promo():
     antibot = _load_antibot_module()
-
-    class Session(object):
-        userId_ = 21517672
-
-        def getParticipantUserIds(self):
-            return [21517672]
-
-        def hasBootPrivileges(self, uid):
-            return True
-
-        def isRoomSession(self):
-            return True
-
-    session = Session()
+    session = _mod_session(367846772)
     block, reason = antibot.check_incoming_message(
         session,
         390288917,
-        {"message": u"vuarchives.com discord.com/invite/h87FtAz6V8"},
+        {
+            "chatId": 367846772,
+            "message": u"vuarchives.com discord.com/invite/h87FtAz6V8",
+        },
     )
     assert block
     assert reason == "promo_message"
