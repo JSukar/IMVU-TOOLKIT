@@ -3,8 +3,8 @@
 import argparse
 
 from imvu_toolkit import __version__
-from imvu_toolkit.patches.dpi.registry import DPI_SCRIPTS, run_dpi_patch
 from imvu_toolkit.patches.antibot.patch import main as antibot_main
+from imvu_toolkit.patches.dpi.registry import DPI_SCRIPTS, run_dpi_patch
 from imvu_toolkit.patches.emoji.patch import main as emoji_main
 from imvu_toolkit.tools.runner import TOOL_SCRIPTS, run_tool
 
@@ -12,7 +12,10 @@ from imvu_toolkit.tools.runner import TOOL_SCRIPTS, run_tool
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="imvu-toolkit",
-        description="IMVU Classic Fix Toolkit — emoji rendering, room antibot, and optional DPI patches.",
+        description=(
+            "IMVU Classic Fix Toolkit — emoji rendering, room antibot, "
+            "and optional DPI patches."
+        ),
     )
     parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
     sub = parser.add_subparsers(dest="command", required=True)

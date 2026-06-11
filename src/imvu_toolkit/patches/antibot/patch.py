@@ -1,21 +1,6 @@
 """Apply or restore the IMVU room antibot patch."""
 
-import argparse
-import os
-import sys
-
-from imvu_toolkit.imvu_process import ensure_imvu_closed, start_imvu
-from imvu_toolkit.patches.antibot import constants as C
-from imvu_toolkit.patches.antibot.transforms import (
-    build_library_sources,
-    patch_text_file,
-    read_asset,
-)
-from imvu_toolkit.paths import DEFAULT_IMVU_DIR
-from imvu_toolkit.zip_utils import restore_from_backup, rewrite_jar, rewrite_zip
-
-
-def parse_args(argv=None):
+import argparseimport osimport sysfrom imvu_toolkit.imvu_process import ensure_imvu_closed, start_imvufrom imvu_toolkit.patches.antibot import constants as Cfrom imvu_toolkit.patches.antibot.transforms import (    build_library_sources,    patch_text_file,    read_asset,)from imvu_toolkit.paths import DEFAULT_IMVU_DIRfrom imvu_toolkit.zip_utils import restore_from_backup, rewrite_jar, rewrite_zipdef parse_args(argv=None):
     parser = argparse.ArgumentParser(
         description="Patch IMVU to auto-boot VuArchives-style promo bots in rooms you own or mod.",
     )

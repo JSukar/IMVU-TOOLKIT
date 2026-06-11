@@ -1,5 +1,4 @@
 import importlib.util
-import os
 import sys
 
 from imvu_toolkit.paths import asset_path
@@ -22,7 +21,10 @@ def test_is_promo_message_detects_homoglyphs():
 
 def test_is_promo_message_detects_zero_width_spacing():
     antibot = _load_antibot_module()
-    msg = u"v\u200bu\u200ba\u200br\u200bc\u200bh\u200bi\u200bv\u200be\u200bs\u200b.\u200bc\u200bo\u200bm"
+    msg = (
+        u"v\u200bu\u200ba\u200br\u200bc\u200bh\u200bi\u200bv\u200be\u200bs\u200b."
+        u"\u200bc\u200bo\u200bm"
+    )
     assert antibot.is_promo_message(msg)
 
 
