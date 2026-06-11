@@ -15,8 +15,13 @@ def ensure_import_path(root: str | None = None) -> str:
     return repo_root
 
 
-def run_patch(restore: bool = False) -> int:
-    from imvu_toolkit.patches.emoji.patch import main as patch_main
+def run_patch(restore: bool = False, patch: str = "emoji") -> int:
+    if patch == "antibot":
+        from imvu_toolkit.patches.antibot.patch import main as patch_main
+    elif patch == "emoji":
+        from imvu_toolkit.patches.emoji.patch import main as patch_main
+    else:
+        raise ValueError("Unknown patch type: %s" % patch)
 
     argv = ["--relaunch-imvu"]
     if restore:

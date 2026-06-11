@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Windows installer entry point for the IMVU emoji patch."""
+"""Windows installer entry point for the IMVU room antibot patch."""
 
 import os
 import sys
@@ -21,27 +21,27 @@ def _cli_main() -> int:
     from imvu_toolkit.installer.runner import run_patch
 
     print("=" * 54)
-    print("  IMVU Emoji Patch Installer  v%s" % __version__)
+    print("  IMVU Antibot Patch Installer  v%s" % __version__)
     print("  %s" % REPO_URL)
     print("=" * 54)
     if restore:
-        print("\nMode: RESTORE (undo emoji patch)")
+        print("\nMode: RESTORE (undo antibot patch)")
     else:
         print("\nMode: INSTALL")
         print("If IMVU is open, close it when prompted — the installer waits, then relaunches IMVU.")
     print("")
 
-    code = run_patch(restore=restore, patch="emoji")
+    code = run_patch(restore=restore, patch="antibot")
 
     print("")
     if code == 0:
         if restore:
             print("Restore complete.")
         else:
-            print("Install complete. Click the smiley button beside Send in chat.")
+            print("Install complete. Use the shield icon beside Send in chat.")
     elif code == 2:
         print("IMVU did not close in time. Close it completely and run this installer again.")
-        print("Or use install.ps1 if Windows Defender blocks this .exe.")
+        print("Or use install_antibot.ps1 if Windows Defender blocks this .exe.")
     else:
         print("Installer failed. Review the messages above.")
 
@@ -60,7 +60,7 @@ def main() -> int:
         return _cli_main()
     from imvu_toolkit.installer.gui import main as gui_main
 
-    return gui_main(profile_id="emoji")
+    return gui_main(profile_id="antibot")
 
 
 if __name__ == "__main__":

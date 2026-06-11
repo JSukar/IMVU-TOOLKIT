@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    
+        <script src="../../js/jquery-1.6.js"></script>
+        <script src="../../js/underscore.js"></script>
+        <script src="../../js/underscore.string.js"></script>
+        <link type="text/css" rel="stylesheet" href="../../widgets/product/product_base.css">
+        <link type="text/css" rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="../../css/new-visd-buttons.css">
+        <script src="../../yui/yahoo-dom-event/yahoo-dom-event.js"></script>
+        <script src="../../js/imvu.js"></script>
+        <script src="../../js/emojiCache.js"></script>
+        <script src="../../js/emojiDisplay.js"></script>
+        <script src="../../js/emojiList.js"></script>
+        <script src="../../js/emojiSuggestions.js"></script>
+        <script src="../../js/emojiPicker.js"></script>
+        <script src="../../js/eventbus.js"></script>
+        <script src="../../widgets/button/imvuButton.js"></script>
+        <script src="ChatTool.js"></script>
+    </head><body>
+        <div id="text-chat">
+            <div id="close"></div>
+            <div id="header">
+                <div class="chat-label"><script id="inline_translate">_iT("Chat", "inline_translate")</script></div>
+                <div class="controls">
+                    <div id="textSize"></div>
+                    <div id="invert"></div>
+                </div>
+                <div id="closebutton"></div>
+            </div>
+            <div id="history"></div>
+            <div id="new-whisper-indicator">
+                <div class="title"><script id="inline_translate">_iT("Whispering to", "inline_translate")</script></div>
+                <div class="name"></div>
+                <div class="stop"><script id="inline_translate">_iT("Stop whisper", "inline_translate")</script></div>
+            </div>
+            <div id="input-row-wrapper">
+                <div id="inputRow" class="row">
+                    <div class="whisper-indicator"></div>
+                    <div class="input-box-wrapper">
+                        <div class="input-box">
+                            <input hint="Type to chat" class="hint">
+                        </div>
+                    </div>
+                    <div id="send-button" class="send-button">
+                        <div id="send" class="imvu-button level2"><script id="inline_translate">_iT("Send", "inline_translate")</script></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+        if (IMVU.runJS()) {
+            IMVU.Client.ChatTool = new ChatTool(
+                imvu,
+                IMVU.Client.EventBus,
+                document.getElementById('text-chat'),
+                IMVU.Network
+            );
+
+            if (IMVU.IS_FIREFOX) {
+                var COLORS = [
+                    [0x7d, 0xd2, 0xd5],
+                    [0xc8, 0xac, 0xe9],
+                    [0xf8, 0xcd, 0x46],
+                    [0x83, 0xd6, 0x96],
+                    [0xf6, 0xaa, 0x84],
+                    [0x8a, 0xc1, 0xef],
+                    [0xae, 0xd1, 0x55],
+                    [0xe2, 0xa8, 0xdb],
+                    [0xb5, 0xbc, 0xeb],
+                    [0xff, 0xff, 0xff]];
+
+                for (var i = 0; i < 1; i++) {
+                    IMVU.Client.ChatTool.__onNewParticipant(
+                        null,
+                        {who:'Chad', userId: 1, nameTagColor: COLORS[i]});
+                    IMVU.Client.ChatTool.__onNewMessage(
+                        null,
+                        {who:'Chad', userId: 1, nameTagColor: COLORS[i], message: 'https://www.youtube.com/watch?v=HJj75IgsfWQ'});
+                    IMVU.Client.ChatTool.__onNewMessage(
+                        null,
+                        {who:'Chad', userId: 1, nameTagColor: COLORS[i], message: 'https://www.youtube.com/watch?v=HJj75IgsfWQ', to: 39});
+                    IMVU.Client.ChatTool.__onNewMessage(
+                        null,
+                        {who:'Chad', userId: 1, nameTagColor: COLORS[i], message: 'https://www.youtube.com/watch?v=HJj75IgsfWQ', to: 2});
+                    IMVU.Client.ChatTool.__onNewMessage(
+                        null,
+                        {who:'Chad', userId: 1, nameTagColor: COLORS[i], message: '/me  https://www.youtube.com/watch?v=HJj75IgsfWQ'});
+                }
+                
+                IMVU.Client.ChatTool.displayMessageForProduct({who: 'slezakattack', userId: 1, nameTagColor: COLORS[0]}, "tried on");
+            }
+            //HtmlTool invokes these
+            var tool = {show:function(){}, hide:function(){}};
+        }
+        </script>
+    </body></html>

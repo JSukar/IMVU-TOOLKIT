@@ -2,7 +2,7 @@
 
 How the IMVU Classic Fix Toolkit patches the client without modifying the `.exe`.
 
-Back to [README](../README.md) | [DPI patches](dpi-patches.md) | [Compatibility](compatibility.md) | [FAQ](FAQ.md)
+Back to [README](../README.md) | [Antibot](antibot.md) | [DPI patches](dpi-patches.md) | [Compatibility](compatibility.md) | [FAQ](FAQ.md)
 
 ## IMVU Classic layout (relevant paths)
 

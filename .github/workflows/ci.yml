@@ -35,8 +35,10 @@ jobs:
       - name: Build installer
         shell: pwsh
         run: ./build_installer.ps1
-      - name: Upload artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: IMVU-Emoji-Installer
-          path: dist/IMVU-Emoji-Installer.exe
+          name: IMVU-Installers
+          path: |
+            dist/IMVU-Emoji-Installer.exe
+            dist/IMVU-Antibot-Installer.exe

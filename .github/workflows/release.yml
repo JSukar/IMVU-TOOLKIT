@@ -24,20 +24,26 @@ jobs:
         shell: pwsh
         run: |
           python scripts/extract_changelog.py CHANGELOG.md "${{ github.ref_name }}" > release_notes.md
-          $exe = "dist/IMVU-Emoji-Installer.exe"
-          $hash = (Get-FileHash $exe -Algorithm SHA256).Hash.ToLower()
+          $emojiExe = "dist/IMVU-Emoji-Installer.exe"
+          $antibotExe = "dist/IMVU-Antibot-Installer.exe"
+          $emojiHash = (Get-FileHash $emojiExe -Algorithm SHA256).Hash.ToLower()
+          $antibotHash = (Get-FileHash $antibotExe -Algorithm SHA256).Hash.ToLower()
           @"
 
           ## Verification
 
           "@ | Add-Content -Path release_notes.md -Encoding utf8
-          Add-Content -Path release_notes.md -Encoding utf8 ('**SHA256:** `{0}`' -f $hash)
+          Add-Content -Path release_notes.md -Encoding utf8 ('**IMVU-Emoji-Installer.exe SHA256:** `{0}`' -f $emojiHash)
+          Add-Content -Path release_notes.md -Encoding utf8 ('**IMVU-Antibot-Installer.exe SHA256:** `{0}`' -f $antibotHash)
           Add-Content -Path release_notes.md -Encoding utf8 ""
-          Add-Content -Path release_notes.md -Encoding utf8 ("[VirusTotal report](https://www.virustotal.com/gui/file/{0})" -f $hash)
+          Add-Content -Path release_notes.md -Encoding utf8 ("[Emoji VirusTotal report](https://www.virustotal.com/gui/file/{0})" -f $emojiHash)
+          Add-Content -Path release_notes.md -Encoding utf8 ("[Antibot VirusTotal report](https://www.virustotal.com/gui/file/{0})" -f $antibotHash)
           Add-Content -Path release_notes.md -Encoding utf8 ""
-          Add-Content -Path release_notes.md -Encoding utf8 '**Defender blocked the download?** Clone the repo and run `install.ps1` or `install_gui.ps1` (Python, no bundled .exe).'
+          Add-Content -Path release_notes.md -Encoding utf8 '**Defender blocked the download?** Clone the repo and run `install.ps1` / `install_antibot.ps1` or the matching `install_*_gui.ps1` scripts (Python, no bundled .exe).'
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          files: dist/IMVU-Emoji-Installer.exe
+          files: |
+            dist/IMVU-Emoji-Installer.exe
+            dist/IMVU-Antibot-Installer.exe
           body_path: release_notes.md

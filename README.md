@@ -4,13 +4,15 @@
 
 Fix chat emoji on IMVU Classic’s old Gecko engine, with a searchable picker, text shortcuts, and Twemoji rendering — plus optional DPI scaling patches for high-DPI displays.
 
-**Docs:** [Architecture](docs/architecture.md) · [DPI patches](docs/dpi-patches.md) · [Compatibility](docs/compatibility.md) · [FAQ](docs/FAQ.md)
+**Docs:** [Architecture](docs/architecture.md) · [Antibot](docs/antibot.md) · [DPI patches](docs/dpi-patches.md) · [Compatibility](docs/compatibility.md) · [FAQ](docs/FAQ.md)
 
 ### Unified CLI
 
 ```powershell
 python -m imvu_toolkit emoji install
 python -m imvu_toolkit emoji restore
+python -m imvu_toolkit antibot install
+python -m imvu_toolkit antibot restore
 python -m imvu_toolkit emoji generate-list
 python -m imvu_toolkit tools scale-window --watch
 python -m imvu_toolkit dpi clean-layout --restore
@@ -28,7 +30,7 @@ pytest
 ruff check src tests
 ```
 
-Tag a release (`git tag v1.1.0 && git push origin v1.1.0`) to build and publish `IMVU-Emoji-Installer.exe` via GitHub Actions.
+Tag a release (`git tag v1.1.0 && git push origin v1.1.0`) to build and publish `IMVU-Emoji-Installer.exe` and `IMVU-Antibot-Installer.exe` via GitHub Actions.
 
 ---
 
@@ -125,6 +127,18 @@ Details: [Architecture](docs/architecture.md)
 ### Troubleshooting (emoji)
 
 See [FAQ](docs/FAQ.md) and the troubleshooting section in [dpi-patches.md](docs/dpi-patches.md#7-troubleshooting-matrix) (emoji entries).
+
+---
+
+## Room Antibot (VuArchives spam)
+
+Auto-boots VuArchives-style promo bots in rooms you **own or mod**. Shield icon beside **Send** shows protection status; click for boot log and whitelist.
+
+**Quick start:** download `IMVU-Antibot-Installer.exe` from [Releases](https://github.com/JSukar/IMVU-TOOLKIT/releases), or run `.\install_antibot.ps1` if Defender blocks the `.exe`.
+
+Restore: `IMVU-Antibot-Installer.exe --restore` or `.\install_antibot.ps1 --restore`
+
+Full reference (detection rules, architecture, bot research, screenshots): **[docs/antibot.md](docs/antibot.md)**
 
 ---
 

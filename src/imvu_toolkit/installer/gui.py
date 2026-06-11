@@ -11,6 +11,7 @@ import webbrowser
 from tkinter import messagebox, scrolledtext, ttk
 
 from imvu_toolkit import __version__
+from imvu_toolkit.installer.profiles import InstallerProfile, get_profile
 from imvu_toolkit.installer.runner import ensure_import_path, run_patch
 from imvu_toolkit.paths import asset_path
 
@@ -62,15 +63,16 @@ def _set_windows_taskbar_icon(root: tk.Tk, ico_path: str) -> None:
 
 
 class InstallerApp:
-    def __init__(self, root: tk.Tk) -> None:
+    def __init__(self, root: tk.Tk, profile: InstallerProfile) -> None:
         self.root = root
+        self.profile = profile
         self.log_queue: queue.Queue[str | None] = queue.Queue()
         self.worker: threading.Thread | None = None
         self.running = False
         self._job_lock = threading.Lock()
         self._logo_photo = None
 
-        root.title("IMVU Emoji Patch Installer")
+        root.title(profile.window_title)
         root.configure(bg=BG)
         root.minsize(480, 440)
         root.geometry("540x500")
@@ -115,7 +117,7 @@ class InstallerApp:
 
         title = tk.Label(
             header,
-            text="Emoji Patch Installer",
+            text=self.profile.hero_title,
             bg=BG,
             fg=TEXT,
             font=("Segoe UI", 15, "bold"),
@@ -126,7 +128,7 @@ class InstallerApp:
 
         subtitle = tk.Label(
             header,
-            text="v%s  ·  Twemoji chat rendering + emoji picker" % __version__,
+            text="v%s  ·  %s" % (__version__, self.profile.subtitle),
             bg=BG,
             fg=MUTED,
             font=("Segoe UI", 9),
@@ -153,7 +155,7 @@ class InstallerApp:
 
         self.install_btn = tk.Button(
             btn_row,
-            text="Install Emoji Patch",
+            text=self.profile.install_button,
             command=lambda: self.start_job(restore=False),
             bg=PANEL,
             fg=TEXT,
@@ -185,10 +187,7 @@ class InstallerApp:
 
         hint = tk.Label(
             outer,
-            text=(
-                "If IMVU is open, close it when prompted. "
-                "The installer waits, patches, then relaunches IMVU."
-            ),
+            text=self.profile.hint,
             bg=BG,
             fg=MUTED,
             font=("Segoe UI", 9),
@@ -292,10 +291,7 @@ class InstallerApp:
                 return
             if restore and not messagebox.askyesno(
                 "Restore original files?",
-                (
-                    "This removes the emoji patch and restores "
-                    "library.zip / imvuContent.jar backups.\n\nContinue?"
-                ),
+                self.profile.restore_confirm,
                 icon="warning",
             ):
                 return
@@ -323,7 +319,7 @@ class InstallerApp:
         try:
             sys.stdout = _QueueStream(self.log_queue)
             sys.stderr = _QueueStream(self.log_queue)
-            code = run_patch(restore=restore)
+            code = run_patch(restore=restore, patch=self.profile.id)
         except Exception as exc:
             self.log_queue.put("Error: %s\n" % exc)
             code = 1
@@ -334,15 +330,12 @@ class InstallerApp:
             self.root.after(0, lambda: self._finish(code, restore))
 
     def _finish(self, code: int, restore: bool) -> None:
+        profile = self.profile
         self.running = False
         self.set_busy(False)
         self.append_log("-" * 48 + "\n")
         if code == 0:
-            msg = (
-                "Restore complete."
-                if restore
-                else "Install complete. Click the smiley button beside Send in chat."
-            )
+            msg = profile.restore_success if restore else profile.install_success
             self.append_log(msg + "\n")
             self.set_status(msg, tone="ok")
             messagebox.showinfo("Done", msg)
@@ -385,10 +378,11 @@ class _QueueStream:
         return False
 
 
-def main() -> int:
+def main(profile_id: str = "emoji") -> int:
     ensure_import_path()
+    profile = get_profile(profile_id)
     root = tk.Tk()
-    app = InstallerApp(root)
+    app = InstallerApp(root, profile)
     if "--restore" in sys.argv:
         root.after(200, lambda: app.start_job(restore=True))
     root.mainloop()
