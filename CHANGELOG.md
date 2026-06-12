@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-06-11
+
+### Fixed
+
+- **Room crash on enter (`setMusicController`)** — antibot no longer replaces stock `sessionwindow.py` with an older decompile; UI event forwarding moved to `ChatTool.py`, and reinstall restores `sessionwindow` from the pre-patch backup when upgrading
+
 ## [1.2.1] - 2026-06-11
 
 ### Added
@@ -150,6 +156,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IMVU-Emoji-Installer.exe` Windows installer (PyInstaller bundle)
 - Auto-close IMVU before patching (overridable with `--no-close-imvu`)
 
+[1.2.2]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.2
 [1.2.1]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.1
 [1.2.0]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.0
 [1.1.1]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.1.1

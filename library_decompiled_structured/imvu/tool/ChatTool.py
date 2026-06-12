@@ -20,6 +20,39 @@ class ChatToolGeckoListener(object):
         self.__platformService = serviceProvider.platform
         self.__serviceProvider = serviceProvider
         self.__userAccount = userAccount
+        session = sessionWindow.getSession()
+        inner = getattr(session, 'innerSession', None)
+        if inner is not None:
+            session = inner
+        self.__antibotSession = session
+        serviceProvider.eventBus.register(
+            session, 'AntibotBooted', self.__antibotBootedListener
+        )
+        serviceProvider.eventBus.register(
+            session, 'AntibotProtectionStatus', self.__antibotProtectionListener
+        )
+        return
+
+    def __antibotBootedListener(self, event):
+        import im.antibot
+        info = dict(event.info)
+        if 'boots' not in info:
+            info['boots'] = im.antibot.get_boot_log(event.sender)
+        self.__serviceProvider.eventBus.fire(
+            self.__sessionWindow,
+            'SessionWindow.AntibotBooted',
+            info,
+        )
+        return
+
+    def __antibotProtectionListener(self, event):
+        import im.antibot
+        info = event.info or im.antibot._protection_status_info(event.sender)
+        self.__serviceProvider.eventBus.fire(
+            self.__sessionWindow,
+            'SessionWindow.AntibotProtectionStatus',
+            info,
+        )
         return
 
     @imvuCallHandlers.register

@@ -14,5 +14,9 @@ def test_extract_changelog_for_current_version():
         text=True,
         check=True,
     )
-    assert "### Added" in result.stdout or "### Changed" in result.stdout
+    assert (
+        "### Added" in result.stdout
+        or "### Changed" in result.stdout
+        or "### Fixed" in result.stdout
+    )
     assert "Unreleased" not in result.stdout

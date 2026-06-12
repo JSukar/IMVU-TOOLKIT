@@ -165,14 +165,13 @@ flowchart LR
         AB[im/antibot.py]
         MEET[im/meet.py]
         SD[SessionDispatcher.py]
-        SW[sessionwindow.py]
         CT[ChatTool.py]
+        SW[sessionwindow.py — stock IMVU, not replaced]
     end
     MEET -->|check_incoming_message| AB
     MEET -->|try_boot_spammer| AB
     SD -->|should_boot_on_join| AB
-    SW -->|AntibotProtectionStatus| JS
-    SW -->|AntibotBooted| JS
+    CT -->|SessionWindow.Antibot*| JS
     CT -->|getAntibotWhitelist etc.| AB
     JS -->|shield + popup| Chat[Chat UI]
 ```
@@ -182,7 +181,7 @@ flowchart LR
 | Detection | `im/antibot.py` | Promo match, whitelist, boot, session log |
 | Message hook | `im/meet.py` | Intercepts incoming chat before display; boots on promo |
 | Join hook | `imvu/session/SessionDispatcher.py` | Join-time check (currently always `False`) |
-| UI bridge | `imvu/client/sessionwindow.py` | Fires Gecko events for shield/popup |
+| UI bridge | `imvu/tool/ChatTool.py` | Gecko IMVU.call handlers; forwards session antibot events to `SessionWindow.*` for JS |
 | Gecko API | `imvu/tool/ChatTool.py` | `getAntibotWhitelist`, add/remove, protection status |
 | Frontend | `js/antibotStatus.js` | Shield button, boot log, whitelist tabs |
 | Styles | `tool/chat/style.css`, `tool/newchat/style.css` | Popup layout, tabs, pager |

@@ -44,7 +44,6 @@ def build_library_sources():
     entries = {}
     skip_validate = {
         C.ZIP_MEET_SOURCE,
-        C.ZIP_SESSIONWINDOW_SOURCE,
     }
     for zip_name, source_path in C.SOURCE_FILES.items():
         entries[zip_name] = _finalize_source(

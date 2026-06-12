@@ -16,15 +16,16 @@ ZIP_SESSION_DISPATCHER_BYTECODE = "imvu/session/SessionDispatcher.pyo"
 ZIP_SESSIONWINDOW_SOURCE = "imvu/client/sessionwindow.py"
 ZIP_SESSIONWINDOW_BYTECODE = "imvu/client/sessionwindow.pyo"
 ZIP_CHAT_TOOL_SOURCE = "imvu/tool/ChatTool.py"
+SESSIONWINDOW_ZIP_ENTRIES = (
+    ZIP_SESSIONWINDOW_SOURCE,
+    ZIP_SESSIONWINDOW_BYTECODE,
+)
 ZIP_CHAT_TOOL_BYTECODE = "imvu/tool/ChatTool.pyo"
 
 ANTIBOT_SOURCE = asset_path("library_decompiled_structured", "im", "antibot.py")
 MEET_SOURCE = asset_path("library_decompiled_structured", "im", "meet.py")
 SESSION_DISPATCHER_SOURCE = asset_path(
     "library_decompiled_structured", "imvu", "session", "SessionDispatcher.py"
-)
-SESSIONWINDOW_SOURCE = asset_path(
-    "library_decompiled_structured", "imvu", "client", "sessionwindow.py"
 )
 CHAT_TOOL_SOURCE = asset_path(
     "library_decompiled_structured", "imvu", "tool", "ChatTool.py"
@@ -35,7 +36,6 @@ SOURCE_FILES = {
     ZIP_ANTIBOT_SOURCE: ANTIBOT_SOURCE,
     ZIP_MEET_SOURCE: MEET_SOURCE,
     ZIP_SESSION_DISPATCHER_SOURCE: SESSION_DISPATCHER_SOURCE,
-    ZIP_SESSIONWINDOW_SOURCE: SESSIONWINDOW_SOURCE,
     ZIP_CHAT_TOOL_SOURCE: CHAT_TOOL_SOURCE,
 }
 
@@ -44,8 +44,6 @@ SKIP_BYTECODE = (
     ZIP_MEET_SOURCE,
     ZIP_SESSION_DISPATCHER_BYTECODE,
     ZIP_SESSION_DISPATCHER_SOURCE,
-    ZIP_SESSIONWINDOW_BYTECODE,
-    ZIP_SESSIONWINDOW_SOURCE,
     ZIP_CHAT_TOOL_BYTECODE,
     ZIP_CHAT_TOOL_SOURCE,
     ZIP_ANTIBOT_SOURCE,
