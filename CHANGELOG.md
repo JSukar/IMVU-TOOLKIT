@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-06-13
+
+### Fixed
+
+- **Antibot shield missing after emoji reinstall** — re-applying the emoji patch no longer strips `antibotStatus.js` from chat HTML when injecting `emojiSuggestions.js`
+
 ## [1.2.3] - 2026-06-13
 
 ### Fixed
@@ -162,6 +168,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IMVU-Emoji-Installer.exe` Windows installer (PyInstaller bundle)
 - Auto-close IMVU before patching (overridable with `--no-close-imvu`)
 
+[1.2.4]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.4
 [1.2.3]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.3
 [1.2.2]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.2
 [1.2.1]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.1

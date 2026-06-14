@@ -2,6 +2,18 @@
 
 from imvu_toolkit.patches.emoji import constants as C
 
+ANTIBOT_SCRIPT = '<script src="../../js/antibotStatus.js"></script>'
+
+
+def _restore_antibot_script(text, had_antibot):
+    """Re-attach antibotStatus.js after emojiPicker when emoji injects broke it."""
+    if not had_antibot or ANTIBOT_SCRIPT in text:
+        return text
+    picker = '<script src="../../js/emojiPicker.js"></script>'
+    if picker not in text:
+        return text
+    return text.replace(picker, picker + "\n        " + ANTIBOT_SCRIPT, 1)
+
 
 def build_common_source(common_source_path=None, common_text=None):
     if common_text is None:
@@ -35,6 +47,8 @@ def read_asset(path):
 
 
 def ensure_emoji_scripts(text):
+    had_antibot = "antibotStatus.js" in text
+
     if "emojiCache.js" not in text and "emojiDisplay.js" in text:
         text = text.replace(
             '<script src="../../js/emojiDisplay.js"></script>',
@@ -52,14 +66,16 @@ def ensure_emoji_scripts(text):
             1,
         )
     if "emojiPicker.js" in text:
-        return text
+        return _restore_antibot_script(text, had_antibot)
     if C.EMOJI_DISPLAY_ONLY in text:
-        return text.replace(C.EMOJI_DISPLAY_ONLY, C.EMOJI_DISPLAY_WITH_PICKER, 1)
+        text = text.replace(C.EMOJI_DISPLAY_ONLY, C.EMOJI_DISPLAY_WITH_PICKER, 1)
+        return _restore_antibot_script(text, had_antibot)
     if C.IMVU_SCRIPT_OLD in text and "emojiDisplay.js" not in text:
-        return text.replace(C.IMVU_SCRIPT_OLD, C.IMVU_SCRIPT_NEW, 1)
+        text = text.replace(C.IMVU_SCRIPT_OLD, C.IMVU_SCRIPT_NEW, 1)
+        return _restore_antibot_script(text, had_antibot)
     if "emojiDisplay.js" not in text:
         raise RuntimeError("Could not inject emoji script tags.")
-    return text
+    return _restore_antibot_script(text, had_antibot)
 
 
 def patch_style_css(text):

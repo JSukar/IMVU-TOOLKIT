@@ -22,7 +22,7 @@ def read_fixture(name):
 
 
 def test_version():
-    assert __version__ == "1.2.3"
+    assert __version__ == "1.2.4"
 
 
 def test_project_root_contains_assets():
@@ -52,6 +52,28 @@ def test_ensure_emoji_scripts_injects_tags():
     assert "emojiPicker.js" in patched
     assert "emojiCache.js" in patched
     assert "emojiSuggestions.js" in patched
+
+
+def test_ensure_emoji_scripts_preserves_antibot():
+    html = (
+        read_fixture("tool_chat_index.html")
+        .replace(
+            '<script src="../../js/emojiSuggestions.js"></script>\n',
+            "",
+        )
+        .replace(
+            '<script src="../../js/emojiPicker.js"></script>',
+            '<script src="../../js/emojiPicker.js"></script>\n'
+            '        <script src="../../js/antibotStatus.js"></script>',
+            1,
+        )
+    )
+    assert "emojiSuggestions.js" not in html
+    assert "antibotStatus.js" in html
+    patched = ensure_emoji_scripts(html)
+    assert "emojiSuggestions.js" in patched
+    assert "antibotStatus.js" in patched
+    assert patched.index("emojiPicker.js") < patched.index("antibotStatus.js")
 
 
 def test_patch_text_file_chat_js():
