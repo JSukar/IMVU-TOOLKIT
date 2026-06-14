@@ -628,7 +628,16 @@
         }
 
         function showBar(match) {
-            var hex = cache.hexFromEmoji(match.emoji);
+            var hex;
+            if (!match || !match.emoji) {
+                hideBar();
+                return;
+            }
+            hex = cache.hexFromEmoji(match.emoji);
+            if (!hex) {
+                hideBar();
+                return;
+            }
             active = match;
             wordEl.innerHTML = '';
             wordEl.appendChild(document.createTextNode(match.word));

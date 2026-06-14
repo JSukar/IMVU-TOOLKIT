@@ -262,7 +262,7 @@
             cat = categories[i];
             for (j = 0; j < cat.emojis.length; j += 1) {
                 entry = cat.emojis[j];
-                hex = cache.hexFromEmoji(entry.c);
+                hex = cache.hexFromEmoji(entry);
                 if (hex) {
                     map[hex] = entry;
                 }
@@ -272,7 +272,10 @@
     }
 
     function emojiHex(entry) {
-        return cache.hexFromEmoji(entry.c);
+        if (!entry) {
+            return '';
+        }
+        return cache.hexFromEmoji(entry);
     }
 
     function preloadEntries(entries) {

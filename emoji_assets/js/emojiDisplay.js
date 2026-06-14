@@ -27,6 +27,15 @@
     function codePointsToTwemojiHex(emojiStr) {
         var parts = [];
         var i = 0;
+        if (emojiStr === null || emojiStr === undefined) {
+            return '';
+        }
+        if (typeof emojiStr !== 'string') {
+            emojiStr = String(emojiStr);
+        }
+        if (!emojiStr) {
+            return '';
+        }
         while (i < emojiStr.length) {
             var c = emojiStr.charCodeAt(i);
             if (c >= 0xD800 && c <= 0xDBFF && i + 1 < emojiStr.length) {
@@ -57,7 +66,14 @@
 
     function emojiImageElement(emojiStr) {
         var cache = IMVU.Client.EmojiCache;
-        var hex = cache ? cache.hexFromEmoji(emojiStr) : codePointsToTwemojiHex(emojiStr);
+        var hex;
+        if (emojiStr === null || emojiStr === undefined || emojiStr === '') {
+            return document.createTextNode('');
+        }
+        hex = cache ? cache.hexFromEmoji(emojiStr) : codePointsToTwemojiHex(emojiStr);
+        if (!hex) {
+            return document.createTextNode(String(emojiStr));
+        }
         var img = document.createElement('img');
         img.className = 'emoji-inline';
         img.alt = emojiStr;

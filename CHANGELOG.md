@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-06-13
+
+### Fixed
+
+- **Chat crash (`emojiStr.charCodeAt is not a function`)** — emoji cache/picker/suggestions now skip invalid emoji input instead of throwing; IMVU no longer hard-shuts down when preload or suggestions hit a bad catalog entry
+
 ## [1.2.2] - 2026-06-11
 
 ### Fixed
@@ -156,6 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IMVU-Emoji-Installer.exe` Windows installer (PyInstaller bundle)
 - Auto-close IMVU before patching (overridable with `--no-close-imvu`)
 
+[1.2.3]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.3
 [1.2.2]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.2
 [1.2.1]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.1
 [1.2.0]: https://github.com/JSukar/IMVU-TOOLKIT/releases/tag/v1.2.0

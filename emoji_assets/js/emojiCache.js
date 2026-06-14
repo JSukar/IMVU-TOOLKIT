@@ -48,9 +48,26 @@
         return value && value.indexOf('data:image/') === 0 && value.length > 120;
     }
 
+    function normalizeEmojiStr(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+        if (typeof value === 'string') {
+            return value;
+        }
+        if (typeof value === 'object' && value.c !== null && value.c !== undefined) {
+            return normalizeEmojiStr(value.c);
+        }
+        return String(value);
+    }
+
     function hexFromEmoji(emojiStr) {
         var parts = [];
         var i = 0;
+        emojiStr = normalizeEmojiStr(emojiStr);
+        if (!emojiStr) {
+            return '';
+        }
         while (i < emojiStr.length) {
             var c = emojiStr.charCodeAt(i);
             if (c >= 0xD800 && c <= 0xDBFF && i + 1 < emojiStr.length) {
@@ -190,6 +207,13 @@
         var stored;
         var url;
 
+        if (!hex) {
+            if (cb) {
+                cb(false);
+            }
+            return;
+        }
+
         if (failedHex[hex]) {
             if (cb) {
                 cb(false);
@@ -249,14 +273,34 @@
 
     function preloadEntries(entries) {
         var i;
+        var entry;
+        var emoji;
+        if (!entries || !entries.length) {
+            return;
+        }
         for (i = 0; i < entries.length; i += 1) {
-            persistHex(hexFromEmoji(entries[i].c));
+            entry = entries[i];
+            if (!entry) {
+                continue;
+            }
+            emoji = entry.c !== null && entry.c !== undefined ? entry.c : entry;
+            persistHex(hexFromEmoji(emoji));
         }
     }
 
     function preloadCatalog(categories) {
-        if (categories.length) {
-            preloadEntries(categories[0].emojis);
+        var cat;
+        var emojis;
+        if (!categories || !categories.length) {
+            return;
+        }
+        cat = categories[0];
+        if (!cat) {
+            return;
+        }
+        emojis = cat.emojis;
+        if (emojis && emojis.length) {
+            preloadEntries(emojis);
         }
     }
 

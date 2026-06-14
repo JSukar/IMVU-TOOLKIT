@@ -22,7 +22,7 @@ def read_fixture(name):
 
 
 def test_version():
-    assert __version__ == "1.2.2"
+    assert __version__ == "1.2.3"
 
 
 def test_project_root_contains_assets():
@@ -79,6 +79,13 @@ def test_patch_font_css():
     font = read_fixture("font.css")
     patched = patch_font_css(font)
     assert "Segoe UI Emoji" in patched
+
+
+def test_emoji_cache_guards_invalid_input():
+    source = open(C.EMOJI_CACHE_SOURCE, encoding="utf-8").read()
+    assert "normalizeEmojiStr" in source
+    assert "if (!emojiStr)" in source
+    assert "if (!hex)" in source
 
 
 def test_rewrite_zip_replaces_entry(tmp_path):
