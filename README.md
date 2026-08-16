@@ -1,3 +1,5 @@
+# NOTE: THIS REPOSITORY IS NO LONGER MAINTAINED. HOWEVER, THE DPI FIXES AND EMOJI FEATURES STILL WORK. THE ANTI-BOT FEATURE IS ALSO NO LONGER MAINTAINED (Might still work untested)
+
 # IMVU Classic Fix Toolkit (Windows)
 
 ![CI](https://github.com/JSukar/IMVU-TOOLKIT/actions/workflows/ci.yml/badge.svg)
